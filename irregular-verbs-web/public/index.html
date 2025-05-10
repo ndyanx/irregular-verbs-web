@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verbos Irregulares en Inglés</title>
+  <link rel="stylesheet" href="../src/css/style.css" />
+</head>
+<body>
+  <button id="toggle-mode">🌙 Modo Oscuro</button>
+  <h1>Verbos Irregulares en Inglés by Randy Bryan</h1>
+  
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Buscar verbos..." />
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Presente <br><small>(Pronunciación)</small></th>
+          <th>Pasado <br><small>(Pronunciación)</small></th>
+          <th>Significado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="pagination-controls">
+    <button id="prevPage">⬅️ Anterior</button>
+    <span id="pageInfo">Página 1</span>
+    <button id="nextPage">Siguiente ➡️</button>
+    <br /><br />
+    <label for="rowsPerPage">Mostrar: </label>
+    <select id="rowsPerPage">
+      <option value="10">10</option>
+      <option value="25" selected>25</option>
+      <option value="50">50</option>
+    </select> verbos por página
+  </div>
+
+  <script src="../src/js/script.js"></script>
+  
+  <footer class="footer">
+    By Randy Bryan
+  </footer>  
+</body>
+</html>
