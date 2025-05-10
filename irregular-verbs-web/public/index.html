@@ -7,12 +7,20 @@
   <link rel="stylesheet" href="src/css/style.css" />
 </head>
 <body>
+  <button id="toggle-sound" class="sound-btn">🔈 Pronunciación</button>
   <button id="toggle-mode">🌙 Modo Oscuro</button>
   <h1>Verbos Irregulares en Inglés by Randy Bryan</h1>
   
   <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Buscar verbos..." />
-  </div>
+  <input type="text" id="searchInput" placeholder="Buscar verbos...">
+  <select id="sortOrder" class="sort-selector">
+    <option value="default">Orden: Predeterminado (A-Z)</option>
+    <option value="identical">Verbos iguales en Presente/Pasado</option>
+    <option value="easy">Más fáciles de aprender (recomendado)</option>
+    <option value="common">Más comunes (uso frecuente)</option>
+  </select>
+</div>
+  
 
   <div class="table-container">
     <table>
@@ -47,7 +55,6 @@
   </div>
 
   <script src="src/js/script.js"></script>
-  
   <footer class="footer">
     <a href="https://www.instagram.com/randybryanzz/" target="_blank" rel="noopener noreferrer">
       <img src="src/img/instagram_icon.png" alt="Instagram" class="ig-icon" />

@@ -123,121 +123,171 @@ const data = [
 ["wind", "wound", "sopla - sopló", "wínd", "wúnd"],
 ["write", "wrote", "escribe - escribió", "ráit", "rout"]
 ];
-  
-  
-  let currentPage = 1;
-  let rowsPerPage = 25;
-  let filteredData = [...data]; // Data filtrada para la búsqueda
-  
-  const tableBody = document.querySelector("tbody");
-  const pageInfo = document.getElementById("pageInfo");
-  const prevBtn = document.getElementById("prevPage");
-  const nextBtn = document.getElementById("nextPage");
-  const rowsSelector = document.getElementById("rowsPerPage");
-  const searchInput = document.getElementById("searchInput");
-  
-  function renderTable() {
-    tableBody.innerHTML = "";
-    const start = (currentPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    const pageData = filteredData.slice(start, end);
-  
-    let currentlyHighlighted = null; // Variable para rastrear el elemento actualmente resaltado
 
-    for (const [present, past, meaning, presPron, pastPron] of pageData) {
-      const [presentMeaning, pastMeaning] = meaning.split(" - ");
-      const row = document.createElement("tr");
-      
-      row.innerHTML = `
-        <td class="present-cell">${present}<br><small>(${presPron})</small></td>
-        <td class="past-cell">${past}<br><small>(${pastPron})</small></td>
-        <td class="meaning-cell">
-          <div class="meaning-wrapper">
-            <span class="present-meaning">${presentMeaning}</span>
-            <span class="meaning-separator"> - </span>
-            <span class="past-meaning">${pastMeaning}</span>
-          </div>
-        </td>
-      `;
+let currentPage = 1;
+let rowsPerPage = 25;
+let filteredData = [...data];
+let soundEnabled = false;
+let currentlyHighlighted = null;
+let currentSort = 'default';
+const commonVerbs = ["be", "have", "do", "say", "go", "get", "make", "take", "come", "see"];
 
-      // Eventos para el subrayado interactivo
-      const presentCell = row.querySelector('.present-cell');
-      const pastCell = row.querySelector('.past-cell');
-      const presentMeaningSpan = row.querySelector('.present-meaning');
-      const pastMeaningSpan = row.querySelector('.past-meaning');
+// Elementos del DOM
+const tableBody = document.querySelector("tbody");
+const pageInfo = document.getElementById("pageInfo");
+const prevBtn = document.getElementById("prevPage");
+const nextBtn = document.getElementById("nextPage");
+const rowsSelector = document.getElementById("rowsPerPage");
+const searchInput = document.getElementById("searchInput");
+const toggleSoundBtn = document.getElementById("toggle-sound");
+const sortOrder = document.getElementById("sortOrder");
 
-      const highlightMeaning = (element) => {
-        // Remover highlight anterior si existe
-        if (currentlyHighlighted && currentlyHighlighted !== element) {
-          currentlyHighlighted.classList.remove('highlight');
-        }
-        
-        // Aplicar nuevo highlight
-        element.classList.toggle('highlight');
-        currentlyHighlighted = element.classList.contains('highlight') ? element : null;
-      };
-
-      presentCell.addEventListener('click', () => {
-        highlightMeaning(presentMeaningSpan);
-        pastMeaningSpan.classList.remove('highlight');
-      });
-
-      pastCell.addEventListener('click', () => {
-        highlightMeaning(pastMeaningSpan);
-        presentMeaningSpan.classList.remove('highlight');
-      });
-
-      tableBody.appendChild(row);
-    }
+// ============ CONTROL DE AUDIO ============
+function speakWord(text, lang = 'en-US') {
+  if (!soundEnabled || !text) return;
   
-    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-    pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
-  
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
+  if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
   }
+}
+
+// ============ SISTEMA DE ORDENAMIENTO ============
+function sortData() {
+  switch(currentSort) {
+    case 'identical':
+      filteredData.sort((a, b) => {
+        const aIdentical = (a[0] === a[1]) ? 0 : 1;
+        const bIdentical = (b[0] === b[1]) ? 0 : 1;
+        return aIdentical - bIdentical;
+      });
+      break;
+      
+    case 'easy':
+      filteredData.sort((a, b) => {
+        const scoreA = a[0].length + (a[0] === a[1] ? 0 : 5) + (commonVerbs.includes(a[0]) ? -10 : 0);
+        const scoreB = b[0].length + (b[0] === b[1] ? 0 : 5) + (commonVerbs.includes(b[0]) ? -10 : 0);
+        return scoreA - scoreB;
+      });
+      break;
+      
+    case 'common':
+      filteredData.sort((a, b) => {
+        const aIndex = commonVerbs.indexOf(a[0]);
+        const bIndex = commonVerbs.indexOf(b[0]);
+        return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+      });
+      break;
+      
+    default: // 'default' (A-Z)
+      filteredData.sort((a, b) => a[0].localeCompare(b[0]));
+  }
+}
+
+// ============ FILTRADO Y PAGINACIÓN ============
+function filterData() {
+  const searchQuery = searchInput.value.toLowerCase();
+
+  filteredData = [...data];
+
   
-  // Función para filtrar los datos por la barra de búsqueda
-  function filterData() {
-    const searchQuery = searchInput.value.toLowerCase();
-    filteredData = data.filter(([present, past, meaning, presPron, pastPron]) => {
+  if(searchQuery) {
+    filteredData = filteredData.filter(([present, past, meaning, presPron, pastPron]) => {
       return (
         present.toLowerCase().includes(searchQuery) ||
         past.toLowerCase().includes(searchQuery) ||
-        meaning.toLowerCase().includes(searchQuery) ||
+        (typeof meaning === 'string' && meaning.toLowerCase().includes(searchQuery)) ||
         presPron.toLowerCase().includes(searchQuery) ||
         pastPron.toLowerCase().includes(searchQuery)
       );
     });
-    currentPage = 1; // Resetear a la primera página al realizar una búsqueda
-    renderTable();
   }
-  
-  prevBtn.addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderTable();
-    }
-  });
-  
-  nextBtn.addEventListener("click", () => {
-    if (currentPage < Math.ceil(filteredData.length / rowsPerPage)) {
-      currentPage++;
-      renderTable();
-    }
-  });
-  
-  rowsSelector.addEventListener("change", () => {
-    rowsPerPage = parseInt(rowsSelector.value);
-    currentPage = 1;
-    renderTable();
-  });
-  
-  searchInput.addEventListener("input", filterData);
-  
-  document.getElementById("toggle-mode").addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-  });
-  
+
+  sortData();
+  currentPage = 1;
   renderTable();
+}
+
+// ============ RENDERIZADO ============
+function renderTable() {
+  tableBody.innerHTML = "";
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const pageData = filteredData.slice(start, end);
+
+  pageData.forEach(([present, past, meaning, presPron, pastPron]) => {
+    const [presentMeaning = present, pastMeaning = past] = typeof meaning === 'string' ? meaning.split(" - ") : [];
+    
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="present-cell">${present}<br><small>(${presPron})</small></td>
+      <td class="past-cell">${past}<br><small>(${pastPron})</small></td>
+      <td class="meaning-cell">
+        <div class="meaning-wrapper">
+          <span class="present-meaning">${presentMeaning}</span>
+          <span class="meaning-separator"> - </span>
+          <span class="past-meaning">${pastMeaning}</span>
+        </div>
+      </td>
+    `;
+
+    const highlight = (element, word) => {
+      if (currentlyHighlighted) currentlyHighlighted.classList.remove('highlight');
+      element.classList.add('highlight');
+      currentlyHighlighted = element;
+      speakWord(word);
+    };
+
+    row.querySelector('.present-cell').addEventListener('click', () => {
+      highlight(row.querySelector('.present-meaning'), present);
+      row.querySelector('.past-meaning').classList.remove('highlight');
+    });
+
+    row.querySelector('.past-cell').addEventListener('click', () => {
+      highlight(row.querySelector('.past-meaning'), past);
+      row.querySelector('.present-meaning').classList.remove('highlight');
+    });
+
+    tableBody.appendChild(row);
+  });
+
+  updatePageInfo();
+}
+
+function updatePageInfo() {
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  pageInfo.textContent = `Página ${currentPage} de ${totalPages} | Orden: ${{
+    default: 'A-Z',
+    identical: 'Iguales',
+    easy: 'Fáciles',
+    common: 'Comunes'
+  }[currentSort]}`;
   
+  prevBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage === totalPages;
+}
+
+// ============ EVENTOS ============
+sortOrder.addEventListener('change', function() {
+  currentSort = this.value;
+  searchInput.value = '';
+  filterData();
+});
+
+toggleSoundBtn?.addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  toggleSoundBtn.textContent = soundEnabled ? '🔊 Sonido ON' : '🔈 Sonido OFF';
+  toggleSoundBtn.style.backgroundColor = soundEnabled ? '#4CAF50' : '';
+});
+
+prevBtn.addEventListener("click", () => currentPage > 1 && (currentPage--, renderTable()));
+nextBtn.addEventListener("click", () => currentPage < Math.ceil(filteredData.length / rowsPerPage) && (currentPage++, renderTable()));
+rowsSelector.addEventListener("change", () => (rowsPerPage = parseInt(rowsSelector.value), currentPage = 1, renderTable()))
+searchInput.addEventListener("input", () => filterData());
+document.getElementById("toggle-mode").addEventListener("click", () => document.body.classList.toggle("dark-mode"));
+
+// ============ INICIALIZACIÓN ============
+renderTable();

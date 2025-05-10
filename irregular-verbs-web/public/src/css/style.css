@@ -1,4 +1,4 @@
-/* ============ ESTRUCTURA BASE ============ */
+/* Estructura Base */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f4f4f4;
@@ -13,31 +13,34 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* ============ COMPONENTES PRINCIPALES ============ */
-/* Barra de búsqueda */
-.search-container {
-  width: 90%;
-  margin: 20px auto;
-  text-align: center;
-}
-
-#searchInput {
-  width: 100%;
-  max-width: 500px;
-  padding: 12px 15px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  outline: none;
+/* Componentes Interactivos */
+#toggle-mode, .sound-btn {
+  position: fixed;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 100;
   transition: all 0.3s;
 }
 
-#searchInput:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+#toggle-mode {
+  top: 10px;
+  right: 10px;
+  background: #ddd;
 }
 
-/* Tabla */
+.sound-btn {
+  top: 10px;
+  left: 10px;
+  background: #ddd;
+}
+
+#toggle-mode:hover, .sound-btn:hover {
+  background: #ccc;
+}
+
+/* Tabla y Contenido */
 .table-container {
   overflow-x: auto;
   width: 100%;
@@ -63,40 +66,24 @@ th {
   text-align: center;
 }
 
-/* Columnas */
+/* Columnas y Celdas */
 td:nth-child(1), td:nth-child(2) {
   text-align: center;
+  width: 30%;
 }
 
 td:nth-child(3) {
   text-align: left;
   padding-left: 15px;
-}
-
-th:nth-child(1), td:nth-child(1),
-th:nth-child(2), td:nth-child(2) {
-  width: 30%;
-}
-
-th:nth-child(3), td:nth-child(3) {
   width: 40%;
 }
 
 /* Filas */
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
+tbody tr:nth-child(even) { background-color: #f9f9f9; }
+tbody tr:nth-child(odd) { background-color: #ffffff; }
+tbody tr:hover { background-color: #e6f2fa; cursor: pointer; }
 
-tbody tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-
-tbody tr:hover {
-  background-color: #e6f2fa;
-  cursor: pointer;
-}
-
-/* Celdas de significado */
+/* Significados */
 .meaning-wrapper {
   display: flex;
   justify-content: center;
@@ -106,8 +93,7 @@ tbody tr:hover {
   min-height: 100%;
 }
 
-.present-meaning, 
-.past-meaning {
+.present-meaning, .past-meaning {
   padding: 2px 4px;
   transition: all 0.2s;
 }
@@ -117,24 +103,15 @@ tbody tr:hover {
   user-select: none;
 }
 
-/* Celdas interactivas */
-.present-cell, 
-.past-cell {
+/* Interactividad */
+.present-cell, .past-cell {
   cursor: pointer;
   transition: background-color 0.2s;
-  position: relative;
 }
 
-.present-cell:hover, 
-.past-cell:hover,
-.present-meaning:hover, 
-.past-meaning:hover {
+.present-cell:hover, .past-cell:hover,
+.present-meaning:hover, .past-meaning:hover {
   background-color: rgba(52, 152, 219, 0.1);
-}
-
-.present-cell:active, 
-.past-cell:active {
-  background-color: rgba(52, 152, 219, 0.2);
 }
 
 .highlight {
@@ -146,26 +123,50 @@ tbody tr:hover {
   color: #2c3e50;
 }
 
-/* ============ CONTROLES ============ */
-/* Botón modo oscuro */
-#toggle-mode {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  padding: 8px 12px;
+/* Controles */
+.search-container {
+  width: 90%;
+  margin: 20px auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.sort-selector {
+  flex: 0.5;
+  min-width: 150px;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 1px solid #3498db;
+  border-radius: 25px;
+  background-color: white;
   cursor: pointer;
-  background: #ddd;
-  border: none;
-  border-radius: 5px;
-  z-index: 100;
+  outline: none;
   transition: all 0.3s;
 }
 
-#toggle-mode:hover {
-  background: #ccc;
+#searchInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  outline: none;
+  transition: all 0.3s;
 }
 
-/* Paginación */
+#searchInput:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+#searchInput:hover, .sort-selector:hover {
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
 .pagination-controls {
   text-align: center;
   margin-top: 20px;
@@ -224,7 +225,7 @@ tbody tr:hover {
   display: inline-block;
 }
 
-/* ============ FOOTER ============ */
+/* Footer */
 .footer {
   text-align: center;
   padding: 20px 0;
@@ -244,70 +245,40 @@ tbody tr:hover {
   transition: color 0.3s ease;
 }
 
-.footer a:hover {
-  color: #3498db;
-}
+.footer a:hover { color: #3498db; }
+.ig-icon { width: 18px; height: 18px; }
 
-.ig-icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* ============ MODO OSCURO ============ */
+/* Modo Oscuro */
 body.dark-mode {
   background-color: #1e1e1e;
   color: #e0e0e0;
 }
 
-body.dark-mode table {
-  border-color: #555;
-}
+body.dark-mode table { border-color: #555; }
+body.dark-mode th { background-color: #444; }
+body.dark-mode td { border-color: #444; }
 
-body.dark-mode th {
-  background-color: #444;
-}
+body.dark-mode tbody tr:nth-child(even) { background-color: #2a2a2a; }
+body.dark-mode tbody tr:nth-child(odd) { background-color: #1f1f1f; }
+body.dark-mode tbody tr:hover { background-color: #333333; }
 
-body.dark-mode td {
-  border-color: #444;
-}
-
-body.dark-mode tbody tr:nth-child(even) {
-  background-color: #2a2a2a;
-}
-
-body.dark-mode tbody tr:nth-child(odd) {
-  background-color: #1f1f1f;
-}
-
-body.dark-mode tbody tr:hover {
-  background-color: #333333;
-}
-
-body.dark-mode #toggle-mode {
+body.dark-mode #toggle-mode,
+body.dark-mode .sound-btn {
   background: #444;
   color: #fff;
 }
 
-body.dark-mode #toggle-mode:hover {
-  background: #555;
-}
+body.dark-mode #toggle-mode:hover,
+body.dark-mode .sound-btn:hover { background: #555; }
 
 body.dark-mode .footer {
   background-color: #1f1f1f;
   border-top: 1px solid #444;
 }
 
-body.dark-mode .footer a {
-  color: #ccc;
-}
-
-body.dark-mode .footer a:hover {
-  color: #5dade2;
-}
-
-body.dark-mode .highlight {
-  color: #5dade2;
-}
+body.dark-mode .footer a { color: #ccc; }
+body.dark-mode .footer a:hover { color: #5dade2; }
+body.dark-mode .highlight { color: #5dade2; }
 
 body.dark-mode .present-meaning:hover, 
 body.dark-mode .past-meaning:hover {
@@ -323,60 +294,35 @@ body.dark-mode .pagination-controls button:hover {
   background-color: #555;
 }
 
-body.dark-mode #rowsPerPage {
+body.dark-mode .sort-selector {
   background-color: #2a2a2a;
   color: #e0e0e0;
   border-color: #555;
 }
 
+body.dark-mode #rowsPerPage,
 body.dark-mode #searchInput {
   background-color: #2a2a2a;
   color: #e0e0e0;
   border-color: #555;
 }
 
-body.dark-mode .meaning-separator {
-  color: #aaa;
-}
+body.dark-mode .meaning-separator { color: #aaa; }
 
-/* ============ RESPONSIVE ============ */
+/* Responsive */
 @media (max-width: 768px) {
   th, td {
     font-size: 14px;
     padding: 10px 8px;
   }
 
-  td:nth-child(3) {
-    padding-left: 8px;
-  }
-
-  th small, td small {
-    display: block;
-    font-size: 11px;
-  }
-
-  h1 {
-    font-size: 22px;
-  }
-
-  .pagination-controls {
-    font-size: 14px;
-  }
-
-  #searchInput {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .pagination-controls button {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  #rowsPerPage {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
+  td:nth-child(3) { padding-left: 8px; }
+  th small, td small { display: block; font-size: 11px; }
+  h1 { font-size: 22px; }
+  .pagination-controls { font-size: 14px; }
+  #searchInput { font-size: 14px; padding: 10px; }
+  .pagination-controls button { padding: 8px 12px; font-size: 13px; }
+  #rowsPerPage { padding: 6px 10px; font-size: 13px; }
 }
 
 @media (max-width: 480px) {
@@ -392,7 +338,22 @@ body.dark-mode .meaning-separator {
     max-width: 200px;
   }
 
-  #rowsPerPage {
-    margin: 5px 0;
+  .search-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  #searchInput, .sort-selector {
+    width: 100%;
+    min-width: auto;
+  }
+
+  #rowsPerPage { margin: 5px 0; }
+
+  @media (max-width: 350px) {
+    #searchInput, .sort-selector {
+      padding: 10px 12px;
+      font-size: 14px;
+    }
   }
 }
