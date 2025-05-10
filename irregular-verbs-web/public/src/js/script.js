@@ -142,6 +142,8 @@ const data = [
     const end = start + rowsPerPage;
     const pageData = filteredData.slice(start, end);
   
+    let currentlyHighlighted = null; // Variable para rastrear el elemento actualmente resaltado
+
     for (const [present, past, meaning, presPron, pastPron] of pageData) {
       const [presentMeaning, pastMeaning] = meaning.split(" - ");
       const row = document.createElement("tr");
@@ -157,18 +159,34 @@ const data = [
           </div>
         </td>
       `;
-      
-      // Agregamos eventos para el subrayado interactivo
-      row.querySelector('.present-cell').addEventListener('click', () => {
-        row.querySelector('.present-meaning').classList.toggle('highlight');
-        row.querySelector('.past-meaning').classList.remove('highlight');
+
+      // Eventos para el subrayado interactivo
+      const presentCell = row.querySelector('.present-cell');
+      const pastCell = row.querySelector('.past-cell');
+      const presentMeaningSpan = row.querySelector('.present-meaning');
+      const pastMeaningSpan = row.querySelector('.past-meaning');
+
+      const highlightMeaning = (element) => {
+        // Remover highlight anterior si existe
+        if (currentlyHighlighted && currentlyHighlighted !== element) {
+          currentlyHighlighted.classList.remove('highlight');
+        }
+        
+        // Aplicar nuevo highlight
+        element.classList.toggle('highlight');
+        currentlyHighlighted = element.classList.contains('highlight') ? element : null;
+      };
+
+      presentCell.addEventListener('click', () => {
+        highlightMeaning(presentMeaningSpan);
+        pastMeaningSpan.classList.remove('highlight');
       });
-      
-      row.querySelector('.past-cell').addEventListener('click', () => {
-        row.querySelector('.past-meaning').classList.toggle('highlight');
-        row.querySelector('.present-meaning').classList.remove('highlight');
+
+      pastCell.addEventListener('click', () => {
+        highlightMeaning(pastMeaningSpan);
+        presentMeaningSpan.classList.remove('highlight');
       });
-      
+
       tableBody.appendChild(row);
     }
   
