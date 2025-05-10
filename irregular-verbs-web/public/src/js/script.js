@@ -143,12 +143,32 @@ const data = [
     const pageData = filteredData.slice(start, end);
   
     for (const [present, past, meaning, presPron, pastPron] of pageData) {
+      const [presentMeaning, pastMeaning] = meaning.split(" - ");
       const row = document.createElement("tr");
+      
       row.innerHTML = `
-        <td>${present}<br><small>(${presPron})</small></td>
-        <td>${past}<br><small>(${pastPron})</small></td>
-        <td>${meaning}</td>
+        <td class="present-cell">${present}<br><small>(${presPron})</small></td>
+        <td class="past-cell">${past}<br><small>(${pastPron})</small></td>
+        <td class="meaning-cell">
+          <div class="meaning-wrapper">
+            <span class="present-meaning">${presentMeaning}</span>
+            <span class="meaning-separator"> - </span>
+            <span class="past-meaning">${pastMeaning}</span>
+          </div>
+        </td>
       `;
+      
+      // Agregamos eventos para el subrayado interactivo
+      row.querySelector('.present-cell').addEventListener('click', () => {
+        row.querySelector('.present-meaning').classList.toggle('highlight');
+        row.querySelector('.past-meaning').classList.remove('highlight');
+      });
+      
+      row.querySelector('.past-cell').addEventListener('click', () => {
+        row.querySelector('.past-meaning').classList.toggle('highlight');
+        row.querySelector('.present-meaning').classList.remove('highlight');
+      });
+      
       tableBody.appendChild(row);
     }
   

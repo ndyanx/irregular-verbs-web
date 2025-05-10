@@ -1,4 +1,4 @@
-/* Estructura base */
+/* ============ ESTRUCTURA BASE ============ */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f4f4f4;
@@ -10,6 +10,31 @@ body {
 
 h1 {
   text-align: center;
+  margin-bottom: 20px;
+}
+
+/* ============ COMPONENTES PRINCIPALES ============ */
+/* Barra de búsqueda */
+.search-container {
+  width: 90%;
+  margin: 20px auto;
+  text-align: center;
+}
+
+#searchInput {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+#searchInput:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
 }
 
 /* Tabla */
@@ -29,14 +54,35 @@ table {
 th, td {
   padding: 12px 15px;
   border: 1px solid #ccc;
-  text-align: center;
+  vertical-align: middle;
 }
 
 th {
   background-color: #3498db;
   color: white;
+  text-align: center;
 }
 
+/* Columnas */
+td:nth-child(1), td:nth-child(2) {
+  text-align: center;
+}
+
+td:nth-child(3) {
+  text-align: left;
+  padding-left: 15px;
+}
+
+th:nth-child(1), td:nth-child(1),
+th:nth-child(2), td:nth-child(2) {
+  width: 30%;
+}
+
+th:nth-child(3), td:nth-child(3) {
+  width: 40%;
+}
+
+/* Filas */
 tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
@@ -46,15 +92,61 @@ tbody tr:nth-child(odd) {
 }
 
 tbody tr:hover {
-  background-color: #dcdcdc;
+  background-color: #e6f2fa;
   cursor: pointer;
 }
 
-/* Ancho de columnas */
-th:nth-child(1), td:nth-child(1) { width: 30%; }
-th:nth-child(2), td:nth-child(2) { width: 30%; }
-th:nth-child(3), td:nth-child(3) { width: 40%; }
+/* Celdas de significado */
+.meaning-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  min-height: 100%;
+}
 
+.present-meaning, 
+.past-meaning {
+  padding: 2px 4px;
+  transition: all 0.2s;
+}
+
+.meaning-separator {
+  color: #777;
+  user-select: none;
+}
+
+/* Celdas interactivas */
+.present-cell, 
+.past-cell {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.present-cell:hover, 
+.past-cell:hover,
+.present-meaning:hover, 
+.past-meaning:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.present-cell:active, 
+.past-cell:active {
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+.highlight {
+  text-decoration: underline;
+  text-decoration-color: #3498db;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* ============ CONTROLES ============ */
 /* Botón modo oscuro */
 #toggle-mode {
   position: fixed;
@@ -66,6 +158,11 @@ th:nth-child(3), td:nth-child(3) { width: 40%; }
   border: none;
   border-radius: 5px;
   z-index: 100;
+  transition: all 0.3s;
+}
+
+#toggle-mode:hover {
+  background: #ccc;
 }
 
 /* Paginación */
@@ -74,7 +171,60 @@ th:nth-child(3), td:nth-child(3) { width: 40%; }
   margin-top: 20px;
 }
 
-/* Footer */
+.pagination-controls button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination-controls button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.pagination-controls button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#rowsPerPage {
+  padding: 8px 15px;
+  border-radius: 25px;
+  border: 1px solid #3498db;
+  background-color: white;
+  color: #333;
+  font-size: 14px;
+  margin: 0 5px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+#rowsPerPage:hover {
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+#pageInfo {
+  margin: 0 15px;
+  font-weight: 500;
+  min-width: 100px;
+  display: inline-block;
+}
+
+/* ============ FOOTER ============ */
 .footer {
   text-align: center;
   padding: 20px 0;
@@ -103,7 +253,7 @@ th:nth-child(3), td:nth-child(3) { width: 40%; }
   height: 18px;
 }
 
-/* Modo oscuro */
+/* ============ MODO OSCURO ============ */
 body.dark-mode {
   background-color: #1e1e1e;
   color: #e0e0e0;
@@ -138,6 +288,10 @@ body.dark-mode #toggle-mode {
   color: #fff;
 }
 
+body.dark-mode #toggle-mode:hover {
+  background: #555;
+}
+
 body.dark-mode .footer {
   background-color: #1f1f1f;
   border-top: 1px solid #444;
@@ -151,40 +305,54 @@ body.dark-mode .footer a:hover {
   color: #5dade2;
 }
 
-/* Barra de búsqueda */
-.search-container {
-  width: 90%;
-  margin: 20px auto;
-  text-align: center;
+body.dark-mode .highlight {
+  color: #5dade2;
 }
 
-#searchInput {
-  width: 100%;
-  max-width: 500px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
-  transition: border-color 0.3s;
+body.dark-mode .present-meaning:hover, 
+body.dark-mode .past-meaning:hover {
+  background-color: rgba(93, 173, 226, 0.2);
 }
 
-#searchInput:focus {
-  border-color: #3498db;
+body.dark-mode .pagination-controls button {
+  background-color: #444;
+  color: #e0e0e0;
 }
 
-/* Responsive */
+body.dark-mode .pagination-controls button:hover {
+  background-color: #555;
+}
+
+body.dark-mode #rowsPerPage {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+body.dark-mode #searchInput {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+body.dark-mode .meaning-separator {
+  color: #aaa;
+}
+
+/* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
   th, td {
     font-size: 14px;
-    padding: 8px 10px;
-    white-space: normal;
-    word-break: break-word;
+    padding: 10px 8px;
+  }
+
+  td:nth-child(3) {
+    padding-left: 8px;
   }
 
   th small, td small {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   h1 {
@@ -197,6 +365,34 @@ body.dark-mode .footer a:hover {
 
   #searchInput {
     font-size: 14px;
-    padding: 8px;
+    padding: 10px;
+  }
+
+  .pagination-controls button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  #rowsPerPage {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pagination-controls button {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  #rowsPerPage {
+    margin: 5px 0;
   }
 }

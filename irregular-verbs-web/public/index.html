@@ -28,16 +28,22 @@
   </div>
 
   <div class="pagination-controls">
-    <button id="prevPage">⬅️ Anterior</button>
+    <button id="prevPage">
+      <span class="arrow">←</span> Anterior
+    </button>
     <span id="pageInfo">Página 1</span>
-    <button id="nextPage">Siguiente ➡️</button>
+    <button id="nextPage">
+      Siguiente <span class="arrow">→</span>
+    </button>
     <br /><br />
     <label for="rowsPerPage">Mostrar: </label>
     <select id="rowsPerPage">
       <option value="10">10</option>
       <option value="25" selected>25</option>
       <option value="50">50</option>
-    </select> verbos por página
+      <option value="100">100</option>
+    </select>
+    <span>verbos por página</span>
   </div>
 
   <script src="src/js/script.js"></script>
