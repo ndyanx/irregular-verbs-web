@@ -30,7 +30,7 @@ h1 {
   z-index: 100;
 }
 
-#toggle-mode, .sound-btn, #toggle-participle {
+#toggle-mode, .sound-btn {
   padding: 10px 15px;
   border: none;
   border-radius: 30px;
@@ -51,16 +51,7 @@ h1 {
   background: #ddd;
 }
 
-#toggle-participle {
-  background: #4CAF50;
-  color: white;
-}
-
-#toggle-participle.hidden {
-  background: #f44336;
-}
-
-#toggle-mode:hover, .sound-btn:hover, #toggle-participle:hover {
+#toggle-mode:hover, .sound-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
@@ -74,6 +65,7 @@ h1 {
   gap: 12px;
   padding: 0 15px;
   box-sizing: border-box;
+  align-items: center;
 }
 
 #searchInput {
@@ -86,6 +78,26 @@ h1 {
   outline: none;
   transition: all 0.3s;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.participle-btn {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #4CAF50;
+  color: white;
+}
+
+.participle-btn.hidden {
+  background: #f44336;
 }
 
 .sort-selector {
@@ -107,7 +119,7 @@ h1 {
   background-size: 15px;
 }
 
-#searchInput:focus, .sort-selector:focus {
+#searchInput:focus, .sort-selector:focus, .participle-btn:hover {
   border-color: #2980b9;
   box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
 }
@@ -328,11 +340,11 @@ body.dark-mode .sound-btn {
   color: white;
 }
 
-body.dark-mode #toggle-participle {
+body.dark-mode .participle-btn {
   background-color: #388E3C;
 }
 
-body.dark-mode #toggle-participle.hidden {
+body.dark-mode .participle-btn.hidden {
   background-color: #D32F2F;
 }
 
@@ -360,8 +372,8 @@ body.dark-mode .highlight {
     gap: 10px;
   }
   
-  #searchInput, .sort-selector {
-    width: auto;
+  #searchInput, .sort-selector, .participle-btn {
+    width: 100%;
   }
   
   th, td {
@@ -394,7 +406,7 @@ body.dark-mode .highlight {
 }
 
 @media (max-width: 480px) {
-  #toggle-mode, .sound-btn, #toggle-participle {
+  #toggle-mode, .sound-btn {
     padding: 8px 12px;
     font-size: 14px;
   }
@@ -404,7 +416,7 @@ body.dark-mode .highlight {
     margin-top: 80px;
   }
   
-  #searchInput, .sort-selector {
+  #searchInput, .sort-selector, .participle-btn {
     padding: 10px 15px;
   }
   
@@ -413,8 +425,7 @@ body.dark-mode .highlight {
     font-size: 14px;
   }
   
-  #toggle-participle {
-    width: calc(100% - 30px);
+  .participle-btn {
     justify-content: center;
   }
 }
