@@ -19,7 +19,7 @@ h1 {
 }
 
 /* ============ BOTONES FLOTANTES ============ */
-#toggle-mode, .sound-btn {
+#toggle-mode, .sound-btn, #toggle-participle {
   position: fixed;
   padding: 10px 15px;
   border: none;
@@ -34,18 +34,41 @@ h1 {
 }
 
 #toggle-mode {
-  top: 15px;
-  right: 15px;
+  order: 3;
+  position: static;
   background: #ddd;
+  margin-left: auto;
+}
+
+.controls-container {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 100;
 }
 
 .sound-btn {
-  top: 15px;
-  left: 15px;
+  order: 1;
+  position: static;
   background: #ddd;
 }
 
-#toggle-mode:hover, .sound-btn:hover {
+#toggle-participle {
+  order: 2;
+  position: static;
+  background: #4CAF50;
+  color: white;
+}
+
+#toggle-participle.hidden {
+  background: #f44336;
+}
+
+#toggle-mode:hover, .sound-btn:hover, #toggle-participle:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
@@ -132,13 +155,26 @@ td {
   background-color: white;
 }
 
-td:nth-child(1), td:nth-child(2) {
+/* Nuevo esquema de columnas con participio */
+td:nth-child(1), 
+td:nth-child(2), 
+td:nth-child(3) {
   text-align: center;
-  width: 25%;
+  width: 20%;
 }
 
-td:nth-child(3) {
-  width: 50%;
+td:nth-child(4) {
+  width: 40%;
+}
+
+/* Estilos para ocultar participio */
+.participle-column.hidden,
+.participle-column.hidden + td {
+  display: none;
+}
+
+.participle-column.hidden ~ td:nth-child(4) {
+  width: 60%;
 }
 
 /* ============ ESTILOS DE FILAS ============ */
@@ -159,7 +195,7 @@ tbody tr:hover td {
   flex-wrap: wrap;
 }
 
-.present-meaning, .past-meaning {
+.present-meaning, .past-meaning, .participle-meaning {
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s;
@@ -282,6 +318,14 @@ body.dark-mode .sound-btn {
   color: white;
 }
 
+body.dark-mode #toggle-participle {
+  background-color: #388E3C;
+}
+
+body.dark-mode #toggle-participle.hidden {
+  background-color: #D32F2F;
+}
+
 body.dark-mode .footer {
   background-color: #222;
   border-color: #333;
@@ -310,9 +354,25 @@ body.dark-mode .highlight {
     width: auto;
   }
   
+  /* Ajustes para botones en móvil */
+  #toggle-participle {
+    left: auto;
+    right: 120px;
+    top: 60px;
+  }
+  
   th, td {
     padding: 12px 10px;
     font-size: 14px;
+  }
+  
+  /* Ajustes de columnas en móvil */
+  td:nth-child(1), 
+  td:nth-child(2), 
+  td:nth-child(3),
+  td:nth-child(4) {
+    width: auto;
+    padding: 10px 5px;
   }
   
   .pagination-controls {
@@ -321,14 +381,21 @@ body.dark-mode .highlight {
 }
 
 @media (max-width: 480px) {
-  #toggle-mode, .sound-btn {
+  #toggle-mode, .sound-btn, #toggle-participle {
     padding: 8px 12px;
     font-size: 14px;
   }
   
+  #toggle-participle {
+    right: 15px;
+    top: 60px;
+    width: calc(100% - 30px);
+    justify-content: center;
+  }
+  
   h1 {
     font-size: 22px;
-    margin-top: 50px;
+    margin-top: 100px;
   }
   
   #searchInput, .sort-selector {

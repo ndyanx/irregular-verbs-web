@@ -7,27 +7,32 @@
   <link rel="stylesheet" href="src/css/style.css" />
 </head>
 <body>
-  <button id="toggle-sound" class="sound-btn">🔈 Pronunciación</button>
-  <button id="toggle-mode">🌙 Modo Oscuro</button>
+  <div class="controls-container">
+    <button id="toggle-sound" class="sound-btn">🔈 Pronunciación</button>
+    <button id="toggle-mode">🌙 Modo Oscuro</button>
+    <button id="toggle-participle" class="participle-btn">👁️ Ocultar Participio</button>
+  </div>
+  
   <h1>Verbos Irregulares en Inglés by Randy Bryan</h1>
   
   <div class="search-container">
-  <input type="text" id="searchInput" placeholder="Buscar verbos...">
-  <select id="sortOrder" class="sort-selector">
-    <option value="default">Orden: Predeterminado (A-Z)</option>
-    <option value="identical">Verbos iguales en Presente/Pasado</option>
-    <option value="easy">Más fáciles de aprender (recomendado)</option>
-    <option value="common">Más comunes (uso frecuente)</option>
-  </select>
-</div>
+    <input type="text" id="searchInput" placeholder="Buscar verbos...">
+    <select id="sortOrder" class="sort-selector">
+      <option value="default">Orden: Predeterminado (A-Z)</option>
+      <option value="identical">Verbos iguales en Presente/Pasado</option>
+      <option value="easy">Más fáciles de aprender (recomendado)</option>
+      <option value="common">Más comunes (uso frecuente)</option>
+    </select>
+  </div>
   
 
   <div class="table-container">
     <table>
       <thead>
         <tr>
-          <th>Presente <br></th>
-          <th>Pasado <br></th>
+          <th>Presente</th>
+          <th>Pasado</th>
+          <th class="participle-column">Participio</th>
           <th>Significado</th>
         </tr>
       </thead>
