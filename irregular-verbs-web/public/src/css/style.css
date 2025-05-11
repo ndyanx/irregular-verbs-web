@@ -4,7 +4,7 @@ body {
   background-color: #f4f4f4;
   color: #333;
   margin: 0;
-  padding: 20px;
+  /* padding: 20px; */
   transition: background 0.3s, color 0.3s;
   min-height: 100vh;
   display: flex;
@@ -19,27 +19,6 @@ h1 {
 }
 
 /* ============ BOTONES FLOTANTES ============ */
-#toggle-mode, .sound-btn, #toggle-participle {
-  position: fixed;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  z-index: 100;
-  transition: all 0.3s;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-#toggle-mode {
-  order: 3;
-  position: static;
-  background: #ddd;
-  margin-left: auto;
-}
-
 .controls-container {
   position: fixed;
   top: 15px;
@@ -51,15 +30,28 @@ h1 {
   z-index: 100;
 }
 
+#toggle-mode, .sound-btn, #toggle-participle {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#toggle-mode {
+  background: #ddd;
+  margin-left: auto;
+}
+
 .sound-btn {
-  order: 1;
-  position: static;
   background: #ddd;
 }
 
 #toggle-participle {
-  order: 2;
-  position: static;
   background: #4CAF50;
   color: white;
 }
@@ -155,7 +147,6 @@ td {
   background-color: white;
 }
 
-/* Nuevo esquema de columnas con participio */
 td:nth-child(1), 
 td:nth-child(2), 
 td:nth-child(3) {
@@ -167,7 +158,6 @@ td:nth-child(4) {
   width: 40%;
 }
 
-/* Estilos para ocultar participio */
 .participle-column.hidden,
 .participle-column.hidden + td {
   display: none;
@@ -264,14 +254,34 @@ tbody tr:hover td {
   transition: all 0.3s;
 }
 
-/* ============ FOOTER ============ */
+/* ============ FOOTER UNIFICADO ============ */
 .footer {
-  text-align: center;
-  padding: 25px 0;
-  margin-top: auto;
+  padding: 20px 0;
   background-color: #f8f9fa;
   border-top: 1px solid #e0e0e0;
   width: 100%;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 15px;
+  flex-wrap: wrap;
+}
+
+.footer-left, .footer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-right {
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .footer a {
@@ -291,27 +301,6 @@ tbody tr:hover td {
 .ig-icon {
   width: 20px;
   height: 20px;
-}
-
-.copyright-footer {
-  text-align: center;
-  padding: 15px;
-  margin-top: 30px;
-  font-size: 14px;
-  color: #666;
-  border-top: 1px solid #e0e0e0;
-  background-color: #f8f9fa;
-}
-
-body::after {
-  content: "© Randy Bryan";
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  opacity: 0.5;
-  font-size: 12px;
-  color: #333;
-  z-index: 9999;
 }
 
 /* ============ MODO OSCURO ============ */
@@ -364,16 +353,6 @@ body.dark-mode .highlight {
   background-color: rgba(93, 173, 226, 0.2);
 }
 
-body.dark-mode .copyright-footer {
-  color: #aaa;
-  border-color: #333;
-  background-color: #222;
-}
-
-body.dark-mode::after {
-  color: #fff;
-}
-
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
   .search-container {
@@ -385,19 +364,11 @@ body.dark-mode::after {
     width: auto;
   }
   
-  /* Ajustes para botones en móvil */
-  #toggle-participle {
-    left: auto;
-    right: 120px;
-    top: 60px;
-  }
-  
   th, td {
     padding: 12px 10px;
     font-size: 14px;
   }
   
-  /* Ajustes de columnas en móvil */
   td:nth-child(1), 
   td:nth-child(2), 
   td:nth-child(3),
@@ -409,6 +380,17 @@ body.dark-mode::after {
   .pagination-controls {
     flex-direction: column;
   }
+  
+  .footer-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .footer-left, .footer-right {
+    justify-content: center;
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -417,16 +399,9 @@ body.dark-mode::after {
     font-size: 14px;
   }
   
-  #toggle-participle {
-    right: 15px;
-    top: 60px;
-    width: calc(100% - 30px);
-    justify-content: center;
-  }
-  
   h1 {
     font-size: 22px;
-    margin-top: 100px;
+    margin-top: 80px;
   }
   
   #searchInput, .sort-selector {
@@ -436,5 +411,10 @@ body.dark-mode::after {
   .pagination-controls button {
     padding: 8px 15px;
     font-size: 14px;
+  }
+  
+  #toggle-participle {
+    width: calc(100% - 30px);
+    justify-content: center;
   }
 }

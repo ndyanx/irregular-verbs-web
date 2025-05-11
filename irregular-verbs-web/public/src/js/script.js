@@ -131,6 +131,10 @@ let soundEnabled = false;
 let showParticiple = true;
 let currentlyHighlighted = null;
 let currentSort = 'default';
+let inactivityTimer;
+const controlsContainer = document.querySelector('.controls-container');
+const MOBILE_BREAKPOINT = 768;
+const INACTIVITY_DELAY = 3000;
 const commonVerbs = ["be", "have", "do", "say", "go", "get", "make", "take", "come", "see"];
 
 // Elementos del DOM
@@ -144,7 +148,11 @@ const toggleSoundBtn = document.getElementById("toggle-sound");
 const toggleParticipleBtn = document.getElementById("toggle-participle");
 const sortOrder = document.getElementById("sortOrder");
 
-// ============ CONTROL DE AUDIO ============
+/**
+ * Reproduce audio del texto usando síntesis de voz
+ * @param {string} text - Texto a pronunciar
+ * @param {string} lang - Código de idioma (por defecto 'en-US')
+ */
 function speakWord(text, lang = 'en-US') {
   if (!soundEnabled || !text) return;
   
@@ -157,7 +165,61 @@ function speakWord(text, lang = 'en-US') {
   }
 }
 
-// ============ SISTEMA DE ORDENAMIENTO ============
+/**
+ * Verifica si la vista actual es móvil
+ * @returns {boolean} - True si es vista móvil
+ */
+function isMobileView() {
+  return window.innerWidth <= MOBILE_BREAKPOINT;
+}
+
+/**
+ * Muestra los controles y reinicia temporizador de inactividad
+ */
+function showControls() {
+  if (!isMobileView()) return;
+  controlsContainer.style.opacity = '1';
+  controlsContainer.style.pointerEvents = 'auto';
+  resetInactivityTimer();
+}
+
+/**
+ * Oculta los controles después de inactividad
+ */
+function hideControls() {
+  controlsContainer.style.opacity = '0';
+  controlsContainer.style.pointerEvents = 'none';
+}
+
+/**
+ * Reinicia el temporizador de inactividad
+ */
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(hideControls, INACTIVITY_DELAY);
+}
+
+/**
+ * Configura listeners para detectar inactividad
+ */
+function setupInactivityListener() {
+  if (!isMobileView()) {
+    controlsContainer.style.opacity = '1';
+    controlsContainer.style.pointerEvents = 'auto';
+    return;
+  }
+
+  controlsContainer.style.transition = 'opacity 0.3s ease';
+  const activityEvents = ['mousemove', 'touchstart', 'scroll', 'click'];
+  activityEvents.forEach(event => {
+    document.addEventListener(event, showControls);
+  });
+  showControls();
+}
+
+/**
+ * Ordena los datos según el criterio actual
+ */
 function sortData() {
   switch(currentSort) {
     case 'identical':
@@ -193,10 +255,11 @@ function sortData() {
   }
 }
 
-// ============ FILTRADO Y PAGINACIÓN ============
+/**
+ * Filtra datos según búsqueda y aplica ordenamiento
+ */
 function filterData() {
   const searchQuery = searchInput.value.toLowerCase();
-
   filteredData = [...data];
   
   if(searchQuery) {
@@ -218,7 +281,9 @@ function filterData() {
   renderTable();
 }
 
-// ============ RENDERIZADO ============
+/**
+ * Renderiza la tabla con los datos actuales
+ */
 function renderTable() {
   tableBody.innerHTML = "";
   const start = (currentPage - 1) * rowsPerPage;
@@ -226,7 +291,6 @@ function renderTable() {
   const pageData = filteredData.slice(start, end);
 
   pageData.forEach(([present, past, participle, meaning, presPron, pastPron, partPron]) => {
-    // Dividir el significado según si el participio está visible o no
     let meaningParts = typeof meaning === 'string' ? meaning.split(" - ") : [present, past, participle];
     let presentMeaning = meaningParts[0];
     let pastMeaning = meaningParts[1];
@@ -284,7 +348,6 @@ function renderTable() {
     tableBody.appendChild(row);
   });
 
-  // Aplicar estado de visibilidad del participio
   document.querySelectorAll('.participle-cell, th.participle-column').forEach(el => {
     el.style.display = showParticiple ? '' : 'none';
   });
@@ -292,6 +355,9 @@ function renderTable() {
   updatePageInfo();
 }
 
+/**
+ * Actualiza la información de paginación
+ */
 function updatePageInfo() {
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   pageInfo.textContent = `Página ${currentPage} de ${totalPages} | Orden: ${{
@@ -340,22 +406,34 @@ document.getElementById("toggle-mode").addEventListener("click", () => {
   localStorage.setItem('darkMode', document.body.classList.contains("dark-mode"));
 });
 
-// ============ INICIALIZACIÓN ============
+/**
+ * Inicializa la aplicación cargando preferencias y configurando listeners
+ */
 function init() {
-  // Cargar preferencias
   soundEnabled = localStorage.getItem('soundEnabled') === 'true';
   showParticiple = localStorage.getItem('showParticiple') !== 'false';
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add("dark-mode");
   }
 
-  // Configurar estado inicial de los botones
   toggleSoundBtn.textContent = soundEnabled ? '🔊 Sonido ON' : '🔈 Sonido OFF';
   toggleSoundBtn.style.backgroundColor = soundEnabled ? '#4CAF50' : '';
   toggleParticipleBtn.textContent = showParticiple ? '👁️ Ocultar Participio' : '👁️ Mostrar Participio';
   toggleParticipleBtn.classList.toggle('hidden', !showParticiple);
 
+  setupInactivityListener();
+  controlsContainer.addEventListener('mouseenter', showControls);
   renderTable();
 }
 
 init();
+
+window.addEventListener('resize', () => {
+  if (isMobileView()) {
+    setupInactivityListener();
+  } else {
+    controlsContainer.style.opacity = '1';
+    controlsContainer.style.pointerEvents = 'auto';
+    clearTimeout(inactivityTimer);
+  }
+});
