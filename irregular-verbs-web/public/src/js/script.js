@@ -78,7 +78,7 @@ const data = [
   ["see", "saw", "seen", "ver - vio - visto", "sí", "so", "sín"],
   ["seek", "sought", "sought", "buscar - buscó - buscado", "sík", "sot", "sot"],
   ["shake", "shook", "shaken", "sacudir - sacudió - sacudido", "shéik", "shuk", "shéiken"],
-  ["shine", "shone / shined", "shone / shined*", "brillar (shone: luz) / lustrar (shined) - brilló/lustró - brillado/lustrado", "sháin", "shón / sháind", "shón / sháind"],
+  ["shine", "shone / shined", "shone / shined*", "brillar(lustrar) - brilló/lustró - brillado/lustrado", "sháin", "shón / sháind", "shón / sháind"],
   ["shoot", "shot", "shot", "disparar - disparó - disparado", "shút", "shot", "shot"],
   ["show", "showed", "shown", "mostrar - mostró - mostrado", "shóu", "shóud", "shóun"],
   ["shrink", "shrank", "shrunk", "encoger(se) - encogió - encogido", "shrink", "shrank", "shrank"],
@@ -119,6 +119,7 @@ const data = [
   ["write", "wrote", "written", "escribir - escribió - escrito", "ráit", "róut", "ríten"]
 ];
 
+// Variables globales
 let currentPage = 1;
 let rowsPerPage = 25;
 let filteredData = [...data];
@@ -126,11 +127,6 @@ let soundEnabled = false;
 let showParticiple = true;
 let currentlyHighlighted = null;
 let currentSort = 'default';
-let inactivityTimer;
-const controlsContainer = document.querySelector('.controls-container');
-const MOBILE_BREAKPOINT = 768;
-const INACTIVITY_DELAY = 3000;
-const commonVerbs = ["be", "have", "do", "say", "go", "get", "make", "take", "come", "see"];
 
 // Elementos del DOM
 const tableBody = document.querySelector("tbody");
@@ -139,9 +135,10 @@ const prevBtn = document.getElementById("prevPage");
 const nextBtn = document.getElementById("nextPage");
 const rowsSelector = document.getElementById("rowsPerPage");
 const searchInput = document.getElementById("searchInput");
-const toggleSoundBtn = document.getElementById("toggle-sound");
+const soundBtn = document.getElementById("toggle-sound");
 const toggleParticipleBtn = document.getElementById("toggle-participle");
 const sortOrder = document.getElementById("sortOrder");
+const modeBtn = document.getElementById("toggle-mode");
 
 /**
  * Reproduce audio del texto usando síntesis de voz
@@ -174,61 +171,11 @@ function speakWord(text, lang = 'en-US') {
 }
 
 /**
- * Verifica si la vista actual es móvil
- * @returns {boolean} - True si es vista móvil
- */
-function isMobileView() {
-  return window.innerWidth <= MOBILE_BREAKPOINT;
-}
-
-/**
- * Muestra los controles y reinicia temporizador de inactividad
- */
-function showControls() {
-  if (!isMobileView()) return;
-  controlsContainer.style.opacity = '1';
-  controlsContainer.style.pointerEvents = 'auto';
-  resetInactivityTimer();
-}
-
-/**
- * Oculta los controles después de inactividad
- */
-function hideControls() {
-  controlsContainer.style.opacity = '0';
-  controlsContainer.style.pointerEvents = 'none';
-}
-
-/**
- * Reinicia el temporizador de inactividad
- */
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(hideControls, INACTIVITY_DELAY);
-}
-
-/**
- * Configura listeners para detectar inactividad
- */
-function setupInactivityListener() {
-  if (!isMobileView()) {
-    controlsContainer.style.opacity = '1';
-    controlsContainer.style.pointerEvents = 'auto';
-    return;
-  }
-
-  controlsContainer.style.transition = 'opacity 0.3s ease';
-  const activityEvents = ['mousemove', 'touchstart', 'scroll', 'click'];
-  activityEvents.forEach(event => {
-    document.addEventListener(event, showControls);
-  });
-  showControls();
-}
-
-/**
  * Ordena los datos según el criterio actual
  */
 function sortData() {
+  const commonVerbs = ["be", "have", "do", "say", "go", "get", "make", "take", "come", "see"];
+  
   switch(currentSort) {
     case 'identical':
       filteredData.sort((a, b) => {
@@ -306,9 +253,9 @@ function renderTable() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="present-cell">${present}<br><small>(${presPron})</small></td>
-      <td class="past-cell">${past}<br><small>(${pastPron})</small></td>
-      <td class="participle-cell">${participle}<br><small>(${partPron})</small></td>
+      <td class="present-cell">${present}<br><small>${presPron}</small></td>
+      <td class="past-cell">${past}<br><small>${pastPron}</small></td>
+      <td class="participle-cell">${participle}<br><small>${partPron}</small></td>
       <td class="meaning-cell">
         <div class="meaning-wrapper">
           <span class="present-meaning">${presentMeaning}</span>
@@ -368,80 +315,135 @@ function renderTable() {
  */
 function updatePageInfo() {
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-  pageInfo.textContent = `Página ${currentPage} de ${totalPages} | Orden: ${{
+  const sortNames = {
     default: 'A-Z',
-    identical: 'Iguales',
-    easy: 'Fáciles',
-    common: 'Comunes'
-  }[currentSort]}`;
+    identical: 'Formas Idénticas',
+    easy: 'Más Fáciles',
+    common: 'Más Comunes'
+  };
+  
+  pageInfo.textContent = `Página ${currentPage} de ${totalPages} | ${sortNames[currentSort]}`;
   
   prevBtn.disabled = currentPage === 1;
   nextBtn.disabled = currentPage === totalPages;
 }
 
-// ============ EVENTOS ============
+// ============ EVENT LISTENERS ============
 sortOrder.addEventListener('change', function() {
   currentSort = this.value;
   searchInput.value = '';
   filterData();
 });
 
-toggleSoundBtn.addEventListener('click', () => {
+// Botón de sonido mejorado
+soundBtn.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
-  toggleSoundBtn.textContent = soundEnabled ? '🔊 Sonido ON' : '🔈 Sonido OFF';
-  toggleSoundBtn.style.backgroundColor = soundEnabled ? '#4CAF50' : '';
+  soundBtn.classList.toggle('active');
   localStorage.setItem('soundEnabled', soundEnabled);
+  
+  // Actualizar icono según estado
+  const soundIcon = soundBtn.querySelector('.sound-icon');
+  const soundWaves = soundBtn.querySelectorAll('.sound-wave');
+  
+  if (soundEnabled) {
+    soundIcon.style.stroke = '#2ecc71'; // Verde
+    soundWaves.forEach(wave => wave.style.stroke = '#2ecc71');
+  } else {
+    soundIcon.style.stroke = '#f72585'; // Rojo
+    soundWaves.forEach(wave => wave.style.stroke = '#f72585');
+  }
 });
 
+// Botón de participio
 toggleParticipleBtn.addEventListener('click', () => {
   showParticiple = !showParticiple;
-  toggleParticipleBtn.textContent = showParticiple ? '👁️ Ocultar Participio' : '👁️ Mostrar Participio';
-  toggleParticipleBtn.classList.toggle('hidden', !showParticiple);
+  toggleParticipleBtn.querySelector('span').textContent = 
+    showParticiple ? 'Participio' : 'Mostrar Participio';
   localStorage.setItem('showParticiple', showParticiple);
   renderTable();
+  
+  // Efecto visual
+  toggleParticipleBtn.classList.toggle('active');
 });
 
-prevBtn.addEventListener("click", () => currentPage > 1 && (currentPage--, renderTable()));
-nextBtn.addEventListener("click", () => currentPage < Math.ceil(filteredData.length / rowsPerPage) && (currentPage++, renderTable()));
+// Botones de paginación
+prevBtn.addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderTable();
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  if (currentPage < Math.ceil(filteredData.length / rowsPerPage)) {
+    currentPage++;
+    renderTable();
+  }
+});
+
 rowsSelector.addEventListener("change", () => {
   rowsPerPage = parseInt(rowsSelector.value);
   currentPage = 1;
   renderTable();
 });
+
 searchInput.addEventListener("input", () => filterData());
-document.getElementById("toggle-mode").addEventListener("click", () => {
+
+// Botón de modo oscuro mejorado
+modeBtn.addEventListener('click', () => {
   document.body.classList.toggle("dark-mode");
   localStorage.setItem('darkMode', document.body.classList.contains("dark-mode"));
+  modeBtn.classList.toggle('active');
+  
+  // Actualizar icono de luna/sol
+  const moonIcon = modeBtn.querySelector('.moon-icon');
+  if (document.body.classList.contains("dark-mode")) {
+    moonIcon.style.stroke = 'white';
+    moonIcon.style.fill = 'white';
+  } else {
+    moonIcon.style.stroke = '';
+    moonIcon.style.fill = 'none';
+  }
 });
 
-/**
- * Inicializa la aplicación cargando preferencias y configurando listeners
- */
+// ============ INICIALIZACIÓN ============
 function init() {
+  // Cargar preferencias
   soundEnabled = localStorage.getItem('soundEnabled') === 'true';
   showParticiple = localStorage.getItem('showParticiple') !== 'false';
+  
+  // Aplicar modo oscuro si está activado
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add("dark-mode");
+    modeBtn.classList.add('active');
+    modeBtn.querySelector('.moon-icon').style.fill = 'white';
   }
 
-  toggleSoundBtn.textContent = soundEnabled ? '🔊 Sonido ON' : '🔈 Sonido OFF';
-  toggleSoundBtn.style.backgroundColor = soundEnabled ? '#4CAF50' : '';
-  toggleParticipleBtn.textContent = showParticiple ? '👁️ Ocultar Participio' : '👁️ Mostrar Participio';
-  toggleParticipleBtn.classList.toggle('hidden', !showParticiple);
+  // Configurar estado inicial de los controles
+  soundBtn.classList.toggle('active', soundEnabled);
+  const soundIcon = soundBtn.querySelector('.sound-icon');
+  const soundWaves = soundBtn.querySelectorAll('.sound-wave');
+  
+  if (soundEnabled) {
+    soundIcon.style.stroke = '#2ecc71';
+    soundWaves.forEach(wave => wave.style.stroke = '#2ecc71');
+  } else {
+    soundIcon.style.stroke = '#f72585';
+    soundWaves.forEach(wave => wave.style.stroke = '#f72585');
+  }
+  
+  toggleParticipleBtn.querySelector('span').textContent = 
+    showParticiple ? 'Participio' : 'Mostrar Participio';
+  toggleParticipleBtn.classList.toggle('active', showParticiple);
 
-  setupInactivityListener();
-  controlsContainer.addEventListener('mouseenter', showControls);
+  // Renderizar tabla inicial
   renderTable();
 }
 
+// Iniciar la aplicación
 init();
 
+// Manejar redimensionamiento de ventana
 window.addEventListener('resize', () => {
-  if (isMobileView()) {
-    setupInactivityListener();
-  } else {
-    controlsContainer.style.opacity = '1';
-    controlsContainer.style.pointerEvents = 'auto';
-    clearTimeout(inactivityTimer);
-  }
+  updatePageInfo();
 });
