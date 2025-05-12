@@ -1,6 +1,6 @@
 const data = [
   ["arise", "arose", "arisen", "surgir (problema/situación) - surgió - surgido", "aráis", "aróus", "arísn"],
-  ["awake", "awoke", "awoken", "despierto - despertó - despertado", "awéik", "awóuk", "awóuken"],
+  ["awake", "awoke", "awoken", "despertar(se) - despertó - despertado", "awéik", "awóuk", "awóuken"],
   ["am / are / is", "was / were", "been", "ser/estar - fue/estuvo - sido/estado", "em / ar / is", "wós / wér", "bín"],
   ["bear", "bore", "borne / born*", "soportar (*born=nacer) - soportó - soportado/nacido*", "ber", "bor", "born / born*"],
   ["beat", "beat", "beaten", "golpear/vencer - golpeó/venció - golpeado/vencido", "bít", "bít", "bíten"],
