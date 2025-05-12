@@ -27,7 +27,7 @@ const data = [
   ["dig", "dug", "dug", "cavar - cavó - cavado", "dig", "dag", "dag"],
   ["do", "did", "done", "hacer - hizo - hecho", "du", "did", "dan"],
   ["draw", "drew", "drawn", "dibujar - dibujó - dibujado", "dro", "dru", "dron"],
-  ["dream", "dreamed / dreamt", "dreamed / dreamt**", "soñar - soñó - soñado", "drím", "drímt / drímt", "drímt / drímt"],
+  ["dream", "dreamed / dreamt", "dreamed / dreamt**", "soñar - soñó - soñado", "drím", "drímt / drámt", "drímt / drámt"],
   ["drink", "drank", "drunk", "beber - bebió - bebido", "drink", "drank", "drank"],
   ["drive", "drove", "driven", "conducir - condujo - conducido", "dráiv", "dróuv", "dríven"],
   ["eat", "ate", "eaten", "comer - comió - comido", "ít", "éit", "íten"],
