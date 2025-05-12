@@ -49,7 +49,7 @@ const data = [
   ["have / has", "had", "had", "tener - tuvo - tenido", "hav / has", "had", "had"],
   ["hear", "heard", "heard", "oír - oyó - oído", "jír", "jerd", "jerd"],
   ["hide", "hid", "hidden", "esconder(se) - escondió - escondido", "jáid", "jid", "jíden"],
-  ["hit", "hit", "hit", "golpear|impactar - golpeó - golpeado", "jit", "jit", "jit"],
+  ["hit", "hit", "hit", "golpear/impactar - golpeó - golpeado", "jit", "jit", "jit"],
   ["hold", "held", "held", "sostener - sostuvo - sostenido", "jóuld", "jeld", "jeld"],
   ["hurt", "hurt", "hurt", "herir/doler - hirió/dolió - herido/dolido", "jert", "jert", "jert"],
   ["keep", "kept", "kept", "guardar - guardó - guardado", "kíp", "kept", "kept"],
