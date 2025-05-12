@@ -60,7 +60,7 @@ const data = [
   ["leave", "left", "left", "dejar/irse - dejó/se fue - dejado/ido", "lív", "left", "left"],
   ["lend", "lent", "lent", "prestar - prestó - prestado", "lend", "lent", "lent"],
   ["let", "let", "let", "permitir - permitió - permitido", "let", "let", "let"],
-  ["lie", "lay / lied", "lain / lied*", "*recostarse: lay-lain / *mentir: lied-lied", "lái", "léi / láid", "léin / láid"],
+  ["lie", "lay / lied", "lain / lied*", "mentir - mintio - mentido", "lái", "léi / láid", "léin / láid"],
   ["light", "lit", "lit", "encender - encendió - encendido", "láit", "lit", "lit"],
   ["lose", "lost", "lost", "perder - perdió - perdido", "lús", "lost", "lost"],
   ["make", "made", "made", "hacer - hizo - hecho", "méik", "méid", "méid"],
