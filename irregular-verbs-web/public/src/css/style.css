@@ -618,6 +618,12 @@ tbody tr:hover td {
   text-align: center;
 }
 
+.quiz-reference {
+  margin-top: 15px;
+  text-align: center;
+  color: var(--text-light);
+}
+
 .quiz-stats {
   margin-top: 15px;
   text-align: center;

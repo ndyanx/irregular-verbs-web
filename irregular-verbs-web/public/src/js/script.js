@@ -150,6 +150,7 @@ const DOM_ELEMENTS = {
   quizAnswer: document.getElementById('quiz-answer'),
   quizSubmit: document.getElementById('quiz-submit'),
   quizFeedback: document.getElementById('quiz-feedback'),
+  quizReference: document.getElementById('quiz-reference'),
   quizStats: document.getElementById('quiz-stats'),
   rowTemplate: document.getElementById("row-template")
 };
@@ -165,7 +166,8 @@ const APP_STATE = {
   currentQuizVerb: null,
   quizScore: 0,
   quizAttempts: 0,
-  showParticipleInQuiz: true
+  showParticipleInQuiz: true,
+  usedVerbIndices: [],
 };
 
 const QUESTION_TYPES = [
@@ -356,8 +358,19 @@ function generateNewQuestion() {
     return true;
   });
 
+  const unusedVerbIndices = data
+    .map((_, index) => index)
+    .filter(index => !APP_STATE.usedVerbIndices.includes(index));
+
+  if (unusedVerbIndices.length === 0) {
+    APP_STATE.usedVerbIndices = [];
+    unusedVerbIndices.push(...Array.from({length: data.length}, (_, i) => i));
+  }
+
   // Seleccionar verbo aleatorio (para debug: usar data[2] que es "to be")
-  APP_STATE.currentQuizVerb = data[Math.floor(Math.random() * data.length)];
+  const randomIndex = unusedVerbIndices[Math.floor(Math.random() * unusedVerbIndices.length)];
+  APP_STATE.currentQuizVerb = data[randomIndex];
+  APP_STATE.usedVerbIndices.push(randomIndex);
   // APP_STATE.currentQuizVerb = data[2]; // <-- Descomentar para probar solo "to be"
 
   const hasSpecialRules = APP_STATE.currentQuizVerb[7]?.gameRules;
@@ -394,6 +407,7 @@ function generateNewQuestion() {
   DOM_ELEMENTS.quizQuestion.textContent = questionText;
   DOM_ELEMENTS.quizAnswer.value = '';
   DOM_ELEMENTS.quizFeedback.textContent = '';
+  DOM_ELEMENTS.quizReference.textContent = APP_STATE.currentQuizVerb[3];
   DOM_ELEMENTS.quizAnswer.focus();
   DOM_ELEMENTS.quizStats.textContent = `Aciertos: ${APP_STATE.quizScore} / Intentos: ${APP_STATE.quizAttempts}`;
 }
@@ -443,7 +457,6 @@ function checkAnswer() {
   }
 
   APP_STATE.quizAttempts++;
-  
   if (isCorrect) {
     APP_STATE.quizScore++;
     DOM_ELEMENTS.quizFeedback.textContent = '¡Correcto!';
@@ -531,12 +544,14 @@ function setupEventListeners() {
 
   DOM_ELEMENTS.quizButton.addEventListener('click', () => {
     DOM_ELEMENTS.quizModal.style.display = 'flex';
+    APP_STATE.usedVerbIndices = [];
     generateNewQuestion();
     DOM_ELEMENTS.quizAnswer.focus();
   });
 
   DOM_ELEMENTS.closeQuiz.addEventListener('click', () => {
     DOM_ELEMENTS.quizModal.style.display = 'none';
+    APP_STATE.usedVerbIndices = [];
   });
 
   DOM_ELEMENTS.quizSubmit.addEventListener('click', checkAnswer);
@@ -547,6 +562,11 @@ function setupEventListeners() {
   if (DOM_ELEMENTS.toggleParticipleBtn) {
     APP_STATE.showParticipleInQuiz = DOM_ELEMENTS.toggleParticipleBtn.classList.contains('active');
   }
+
+  DOM_ELEMENTS.closeQuiz.addEventListener('click', () => {
+    DOM_ELEMENTS.quizModal.style.display = 'none';
+    APP_STATE.usedVerbsInSession = [];
+  });
 
   window.addEventListener('resize', updatePageInfo);
 }
