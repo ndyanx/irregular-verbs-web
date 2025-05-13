@@ -484,7 +484,7 @@ function setupEventListeners() {
 
   DOM_ELEMENTS.toggleParticipleBtn.addEventListener('click', () => {
     APP_STATE.showParticiple = !APP_STATE.showParticiple;
-    APP_STATE.showParticipleInQuiz = APP_STATE.showParticiple;
+    APP_STATE.showParticipleInQuiz = APP_STATE.showParticiple; // importante
     DOM_ELEMENTS.toggleParticipleBtn.querySelector('span').textContent = 
       APP_STATE.showParticiple ? 'Participio' : 'Mostrar Participio';
     localStorage.setItem('showParticiple', APP_STATE.showParticiple);
