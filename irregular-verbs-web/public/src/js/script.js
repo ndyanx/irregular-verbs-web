@@ -138,7 +138,8 @@ const DOM_ELEMENTS = {
   quizAnswer: document.getElementById('quiz-answer'),
   quizSubmit: document.getElementById('quiz-submit'),
   quizFeedback: document.getElementById('quiz-feedback'),
-  quizStats: document.getElementById('quiz-stats')
+  quizStats: document.getElementById('quiz-stats'),
+  rowTemplate: document.getElementById("row-template")
 };
 
 const APP_STATE = {
@@ -272,30 +273,36 @@ function renderTable() {
   const end = start + APP_STATE.rowsPerPage;
   const pageData = APP_STATE.filteredData.slice(start, end);
 
+  const template = DOM_ELEMENTS.rowTemplate;
+
   pageData.forEach(([present, past, participle, meaning, presPron, pastPron, partPron]) => {
+    const clone = template.content.cloneNode(true);
+    const row = clone.querySelector("tr");
+
     let meaningParts = typeof meaning === 'string' ? meaning.split(" - ") : [present, past, participle];
-    let presentMeaning = meaningParts[0];
-    let pastMeaning = meaningParts[1];
-    let participleMeaning = APP_STATE.showParticiple ? meaningParts[2] : null;
+    const presentMeaning = meaningParts[0];
+    const pastMeaning = meaningParts[1];
+    const participleMeaning = APP_STATE.showParticiple ? meaningParts[2] : '';
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td class="present-cell">${present}<br><small>${presPron}</small></td>
-      <td class="past-cell">${past}<br><small>${pastPron}</small></td>
-      <td class="participle-cell">${participle}<br><small>${partPron}</small></td>
-      <td class="meaning-cell">
-        <div class="meaning-wrapper">
-          <span class="present-meaning">${presentMeaning}</span>
-          <span class="meaning-separator"> - </span>
-          <span class="past-meaning">${pastMeaning}</span>
-          ${APP_STATE.showParticiple ? `
-            <span class="meaning-separator"> - </span>
-            <span class="participle-meaning">${participleMeaning}</span>
-          ` : ''}
-        </div>
-      </td>
-    `;
+    row.querySelector(".present-cell").innerHTML = `${present}<br><small>${presPron}</small>`;
+    row.querySelector(".past-cell").innerHTML = `${past}<br><small>${pastPron}</small>`;
+    row.querySelector(".participle-cell").innerHTML = `${participle}<br><small>${partPron}</small>`;
 
+    const wrapper = row.querySelector(".meaning-wrapper");
+    wrapper.querySelector(".present-meaning").textContent = presentMeaning;
+    wrapper.querySelector(".past-meaning").textContent = pastMeaning;
+
+    const partMeaningEl = wrapper.querySelector(".participle-meaning");
+    const separators = wrapper.querySelectorAll(".meaning-separator");
+
+    if (APP_STATE.showParticiple) {
+      partMeaningEl.textContent = participleMeaning;
+    } else {
+      partMeaningEl.style.display = "none";
+      if (separators[1]) separators[1].style.display = "none";
+    }
+
+    // Eventos de clic y pronunciación
     const highlight = (element, word) => {
       if (APP_STATE.currentlyHighlighted) APP_STATE.currentlyHighlighted.classList.remove('highlight');
       element.classList.add('highlight');
@@ -303,31 +310,27 @@ function renderTable() {
       speakWord(word);
     };
 
-    row.querySelector('.present-cell').addEventListener('click', () => {
-      highlight(row.querySelector('.present-meaning'), present);
-      row.querySelector('.past-meaning').classList.remove('highlight');
-      if (APP_STATE.showParticiple) {
-        row.querySelector('.participle-meaning').classList.remove('highlight');
-      }
+    row.querySelector(".present-cell").addEventListener("click", () => {
+      highlight(wrapper.querySelector(".present-meaning"), present);
+      wrapper.querySelector(".past-meaning").classList.remove("highlight");
+      if (APP_STATE.showParticiple) wrapper.querySelector(".participle-meaning").classList.remove("highlight");
     });
 
-    row.querySelector('.past-cell').addEventListener('click', () => {
-      highlight(row.querySelector('.past-meaning'), past);
-      row.querySelector('.present-meaning').classList.remove('highlight');
-      if (APP_STATE.showParticiple) {
-        row.querySelector('.participle-meaning').classList.remove('highlight');
-      }
+    row.querySelector(".past-cell").addEventListener("click", () => {
+      highlight(wrapper.querySelector(".past-meaning"), past);
+      wrapper.querySelector(".present-meaning").classList.remove("highlight");
+      if (APP_STATE.showParticiple) wrapper.querySelector(".participle-meaning").classList.remove("highlight");
     });
 
     if (APP_STATE.showParticiple) {
-      row.querySelector('.participle-cell').addEventListener('click', () => {
-        highlight(row.querySelector('.participle-meaning'), participle);
-        row.querySelector('.present-meaning').classList.remove('highlight');
-        row.querySelector('.past-meaning').classList.remove('highlight');
+      row.querySelector(".participle-cell").addEventListener("click", () => {
+        highlight(wrapper.querySelector(".participle-meaning"), participle);
+        wrapper.querySelector(".present-meaning").classList.remove("highlight");
+        wrapper.querySelector(".past-meaning").classList.remove("highlight");
       });
     }
 
-    DOM_ELEMENTS.tableBody.appendChild(row);
+    DOM_ELEMENTS.tableBody.appendChild(clone);
   });
 
   document.querySelectorAll('.participle-cell, th.participle-column').forEach(el => {
