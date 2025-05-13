@@ -309,6 +309,11 @@ tbody tr:hover td {
   background-color: var(--primary-light) !important;
 }
 
+.dark-mode .quiz-reference {
+  color: black;
+  background-color: white;
+}
+
 /* ============ PAGINACIÓN ============ */
 .pagination-controls {
   display: flex;
@@ -619,9 +624,14 @@ tbody tr:hover td {
 }
 
 .quiz-reference {
+  font-size: 1.2rem;
   margin-top: 15px;
   text-align: center;
-  color: var(--text-light);
+  padding: 5px 0px;
+  color: white;
+  background-color: black;
+  border-radius: var(--radius);
+  transition: var(--transition);
 }
 
 .quiz-stats {

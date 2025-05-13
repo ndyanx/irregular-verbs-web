@@ -552,6 +552,8 @@ function setupEventListeners() {
   DOM_ELEMENTS.closeQuiz.addEventListener('click', () => {
     DOM_ELEMENTS.quizModal.style.display = 'none';
     APP_STATE.usedVerbIndices = [];
+    DOM_ELEMENTS.quizFeedback.className = 'quiz-feedback'; 
+    DOM_ELEMENTS.quizFeedback.textContent = '';
   });
 
   DOM_ELEMENTS.quizSubmit.addEventListener('click', checkAnswer);
