@@ -484,7 +484,7 @@ function setupEventListeners() {
 
   DOM_ELEMENTS.toggleParticipleBtn.addEventListener('click', () => {
     APP_STATE.showParticiple = !APP_STATE.showParticiple;
-    APP_STATE.showParticipleInQuiz = APP_STATE.showParticiple; // importante
+    APP_STATE.showParticipleInQuiz = APP_STATE.showParticiple;
     DOM_ELEMENTS.toggleParticipleBtn.querySelector('span').textContent = 
       APP_STATE.showParticiple ? 'Participio' : 'Mostrar Participio';
     localStorage.setItem('showParticiple', APP_STATE.showParticiple);
@@ -543,6 +543,10 @@ function setupEventListeners() {
   DOM_ELEMENTS.quizAnswer.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') checkAnswer();
   });
+  
+  if (DOM_ELEMENTS.toggleParticipleBtn) {
+    APP_STATE.showParticipleInQuiz = DOM_ELEMENTS.toggleParticipleBtn.classList.contains('active');
+  }
 
   window.addEventListener('resize', updatePageInfo);
 }
