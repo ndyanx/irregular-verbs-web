@@ -575,14 +575,15 @@ function setupEventListeners() {
 
 // ============ INICIALIZACIÓN ============
 function init() {
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  if (isDarkMode) {
+    document.body.classList.add("dark-mode");
+  }
+
+  document.body.classList.add("theme-loaded");
+
   APP_STATE.soundEnabled = localStorage.getItem('soundEnabled') === 'true';
   APP_STATE.showParticiple = localStorage.getItem('showParticiple') !== 'false';
-  
-  if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add("dark-mode");
-    DOM_ELEMENTS.modeBtn.classList.add('active');
-    DOM_ELEMENTS.modeBtn.querySelector('.moon-icon').style.fill = 'white';
-  }
 
   DOM_ELEMENTS.soundBtn.classList.toggle('active', APP_STATE.soundEnabled);
   const soundIcon = DOM_ELEMENTS.soundBtn.querySelector('.sound-icon');

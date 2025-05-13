@@ -40,6 +40,17 @@ body {
   padding-bottom: 60px;
 }
 
+body:not(.theme-loaded) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+body.theme-loaded {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
+}
+
 /* ============ CONTROLES FIJOS MEJORADOS ============ */
 .fixed-controls {
   position: fixed;
