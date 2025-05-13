@@ -373,20 +373,36 @@ tbody tr:hover td {
   gap: 12px;
 }
 
-.footer a {
+.gradient-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--primary);
   text-decoration: none;
   transition: var(--transition);
   justify-content: center;
   width: 100%;
 }
 
-.footer a:hover {
-  color: var(--primary-light);
+.gradient-text {
+  background: linear-gradient(
+    45deg,
+    #833ab4,
+    #c13584,
+    #e1306c,
+    #fd1d1d,
+    #f56040,
+    #ffdc80
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
+
+.instagram-icon svg {
+  display: block;
+}
+
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
