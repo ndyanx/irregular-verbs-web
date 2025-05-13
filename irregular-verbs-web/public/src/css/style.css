@@ -442,3 +442,191 @@ tbody tr:hover td {
     height: 38px;
   }
 }
+
+/* Estilos para el contenedor del botón del quiz */
+.quiz-button-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+}
+
+/* Asegúrate de que el botón mantenga el mismo estilo */
+.quiz-button-container .icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  background-color: var(--card);
+  color: var(--text);
+}
+
+/* Efecto hover */
+.quiz-button-container .icon-btn:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+  .quiz-button-container {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .quiz-button-container .icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Estilos para el botón con texto */
+.quiz-btn-with-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background-color: var(--card);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.quiz-btn-text {
+  white-space: nowrap;
+}
+
+/* Efectos hover y active */
+.quiz-btn-with-text:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.quiz-btn-with-text:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+  .quiz-btn-with-text {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  /* Eliminado el código que ocultaba el texto en móviles */
+  .quiz-btn-with-text svg {
+    margin-right: 0;
+  }
+}
+
+/* Estilos del modal del juego */
+.quiz-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.quiz-content {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  position: relative;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.quiz-question {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: rgba(67, 97, 238, 0.1);
+  border-radius: var(--radius);
+}
+
+.quiz-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+
+.quiz-submit {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.quiz-submit:hover {
+  background-color: var(--primary-light);
+}
+
+.quiz-feedback {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.quiz-stats {
+  margin-top: 15px;
+  text-align: center;
+  color: var(--text-light);
+}
+
+/* Animaciones */
+@keyframes correctAnswer {
+  0% { background-color: rgba(76, 201, 240, 0.1); }
+  50% { background-color: rgba(76, 201, 240, 0.3); }
+  100% { background-color: rgba(76, 201, 240, 0.1); }
+}
+
+@keyframes wrongAnswer {
+  0% { background-color: rgba(247, 37, 133, 0.1); }
+  50% { background-color: rgba(247, 37, 133, 0.3); }
+  100% { background-color: rgba(247, 37, 133, 0.1); }
+}
+
+.correct {
+  animation: correctAnswer 1s ease;
+  color: var(--success);
+}
+
+.wrong {
+  animation: wrongAnswer 1s ease;
+  color: var(--danger);
+}

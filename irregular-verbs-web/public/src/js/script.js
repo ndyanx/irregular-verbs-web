@@ -119,34 +119,61 @@ const data = [
   ["write", "wrote", "written", "escribir - escribió - escrito", "ráit", "róut", "ríten"]
 ];
 
-// Variables globales
-let currentPage = 1;
-let rowsPerPage = 25;
-let filteredData = [...data];
-let soundEnabled = false;
-let showParticiple = true;
-let currentlyHighlighted = null;
-let currentSort = 'default';
+// ============ VARIABLES GLOBALES ============
+const DOM_ELEMENTS = {
+  tableBody: document.querySelector("tbody"),
+  pageInfo: document.getElementById("pageInfo"),
+  prevBtn: document.getElementById("prevPage"),
+  nextBtn: document.getElementById("nextPage"),
+  rowsSelector: document.getElementById("rowsPerPage"),
+  searchInput: document.getElementById("searchInput"),
+  soundBtn: document.getElementById("toggle-sound"),
+  toggleParticipleBtn: document.getElementById("toggle-participle"),
+  sortOrder: document.getElementById("sortOrder"),
+  modeBtn: document.getElementById("toggle-mode"),
+  quizButton: document.getElementById('quiz-button'),
+  quizModal: document.getElementById('quiz-modal'),
+  closeQuiz: document.getElementById('close-quiz'),
+  quizQuestion: document.getElementById('quiz-question'),
+  quizAnswer: document.getElementById('quiz-answer'),
+  quizSubmit: document.getElementById('quiz-submit'),
+  quizFeedback: document.getElementById('quiz-feedback'),
+  quizStats: document.getElementById('quiz-stats')
+};
 
-// Elementos del DOM
-const tableBody = document.querySelector("tbody");
-const pageInfo = document.getElementById("pageInfo");
-const prevBtn = document.getElementById("prevPage");
-const nextBtn = document.getElementById("nextPage");
-const rowsSelector = document.getElementById("rowsPerPage");
-const searchInput = document.getElementById("searchInput");
-const soundBtn = document.getElementById("toggle-sound");
-const toggleParticipleBtn = document.getElementById("toggle-participle");
-const sortOrder = document.getElementById("sortOrder");
-const modeBtn = document.getElementById("toggle-mode");
+const APP_STATE = {
+  currentPage: 1,
+  rowsPerPage: 25,
+  filteredData: [...data],
+  soundEnabled: false,
+  showParticiple: true,
+  currentlyHighlighted: null,
+  currentSort: 'default',
+  currentQuizVerb: null,
+  quizScore: 0,
+  quizAttempts: 0,
+  showParticipleInQuiz: true
+};
 
+const QUESTION_TYPES = [
+  { type: 'meaning_to_base', text: (verb) => `¿Cuál es el verbo en presente para "${verb[3].split(" - ")[0]}"?` },
+  { type: 'meaning_to_past', text: (verb) => `¿Cuál es el pasado de "${verb[3].split(" - ")[0]}"?` },
+  { type: 'meaning_to_participle', text: (verb) => `¿Cuál es el participio de "${verb[3].split(" - ")[0]}"?` },
+  { type: 'base_to_past', text: (verb) => `¿Cuál es el pasado de "${verb[0]}"?` },
+  { type: 'base_to_participle', text: (verb) => `¿Cuál es el participio de "${verb[0]}"?` },
+  { type: 'past_to_base', text: (verb) => `¿Cuál es el presente de "${verb[1]}"?` }
+];
+
+const COMMON_VERBS = ["be", "have", "do", "say", "go", "get", "make", "take", "come", "see"];
+
+// ============ FUNCIONES DE UTILIDAD ============
 /**
  * Reproduce audio del texto usando síntesis de voz
  * @param {string} text - Texto a pronunciar
  * @param {string} lang - Código de idioma (por defecto 'en-US')
  */
 function speakWord(text, lang = 'en-US') {
-  if (!soundEnabled || !text) return;
+  if (!APP_STATE.soundEnabled || !text) return;
   
   if ('speechSynthesis' in window) {
     speechSynthesis.cancel();
@@ -170,15 +197,14 @@ function speakWord(text, lang = 'en-US') {
   }
 }
 
+// ============ FUNCIONES DE ORDENAMIENTO Y FILTRADO ============
 /**
  * Ordena los datos según el criterio actual
  */
 function sortData() {
-  const commonVerbs = ["be", "have", "do", "say", "go", "get", "make", "take", "come", "see"];
-  
-  switch(currentSort) {
+  switch(APP_STATE.currentSort) {
     case 'identical':
-      filteredData.sort((a, b) => {
+      APP_STATE.filteredData.sort((a, b) => {
         const aIdentical = (a[0] === a[1] && a[1] === a[2]) ? 0 : 1;
         const bIdentical = (b[0] === b[1] && b[1] === b[2]) ? 0 : 1;
         return aIdentical - bIdentical || a[0].localeCompare(b[0]);
@@ -186,27 +212,27 @@ function sortData() {
       break;
       
     case 'easy':
-      filteredData.sort((a, b) => {
+      APP_STATE.filteredData.sort((a, b) => {
         const scoreA = a[0].length + 
                      (a[0] === a[1] && a[1] === a[2] ? 0 : 5) + 
-                     (commonVerbs.includes(a[0]) ? -10 : 0);
+                     (COMMON_VERBS.includes(a[0]) ? -10 : 0);
         const scoreB = b[0].length + 
                      (b[0] === b[1] && b[1] === b[2] ? 0 : 5) + 
-                     (commonVerbs.includes(b[0]) ? -10 : 0);
+                     (COMMON_VERBS.includes(b[0]) ? -10 : 0);
         return scoreA - scoreB || a[0].localeCompare(b[0]);
       });
       break;
       
     case 'common':
-      filteredData.sort((a, b) => {
-        const aIndex = commonVerbs.indexOf(a[0]);
-        const bIndex = commonVerbs.indexOf(b[0]);
+      APP_STATE.filteredData.sort((a, b) => {
+        const aIndex = COMMON_VERBS.indexOf(a[0]);
+        const bIndex = COMMON_VERBS.indexOf(b[0]);
         return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
       });
       break;
       
     default: // 'default' (A-Z)
-      filteredData.sort((a, b) => a[0].localeCompare(b[0]));
+      APP_STATE.filteredData.sort((a, b) => a[0].localeCompare(b[0]));
   }
 }
 
@@ -214,11 +240,11 @@ function sortData() {
  * Filtra datos según búsqueda y aplica ordenamiento
  */
 function filterData() {
-  const searchQuery = searchInput.value.toLowerCase();
-  filteredData = [...data];
+  const searchQuery = DOM_ELEMENTS.searchInput.value.toLowerCase();
+  APP_STATE.filteredData = [...data];
   
   if(searchQuery) {
-    filteredData = filteredData.filter(([present, past, participle, meaning, presPron, pastPron, partPron]) => {
+    APP_STATE.filteredData = APP_STATE.filteredData.filter(([present, past, participle, meaning, presPron, pastPron, partPron]) => {
       return (
         present.toLowerCase().includes(searchQuery) ||
         past.toLowerCase().includes(searchQuery) ||
@@ -232,24 +258,25 @@ function filterData() {
   }
 
   sortData();
-  currentPage = 1;
+  APP_STATE.currentPage = 1;
   renderTable();
 }
 
+// ============ FUNCIONES DE RENDERIZADO ============
 /**
  * Renderiza la tabla con los datos actuales
  */
 function renderTable() {
-  tableBody.innerHTML = "";
-  const start = (currentPage - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
-  const pageData = filteredData.slice(start, end);
+  DOM_ELEMENTS.tableBody.innerHTML = "";
+  const start = (APP_STATE.currentPage - 1) * APP_STATE.rowsPerPage;
+  const end = start + APP_STATE.rowsPerPage;
+  const pageData = APP_STATE.filteredData.slice(start, end);
 
   pageData.forEach(([present, past, participle, meaning, presPron, pastPron, partPron]) => {
     let meaningParts = typeof meaning === 'string' ? meaning.split(" - ") : [present, past, participle];
     let presentMeaning = meaningParts[0];
     let pastMeaning = meaningParts[1];
-    let participleMeaning = showParticiple ? meaningParts[2] : null;
+    let participleMeaning = APP_STATE.showParticiple ? meaningParts[2] : null;
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -261,7 +288,7 @@ function renderTable() {
           <span class="present-meaning">${presentMeaning}</span>
           <span class="meaning-separator"> - </span>
           <span class="past-meaning">${pastMeaning}</span>
-          ${showParticiple ? `
+          ${APP_STATE.showParticiple ? `
             <span class="meaning-separator"> - </span>
             <span class="participle-meaning">${participleMeaning}</span>
           ` : ''}
@@ -270,16 +297,16 @@ function renderTable() {
     `;
 
     const highlight = (element, word) => {
-      if (currentlyHighlighted) currentlyHighlighted.classList.remove('highlight');
+      if (APP_STATE.currentlyHighlighted) APP_STATE.currentlyHighlighted.classList.remove('highlight');
       element.classList.add('highlight');
-      currentlyHighlighted = element;
+      APP_STATE.currentlyHighlighted = element;
       speakWord(word);
     };
 
     row.querySelector('.present-cell').addEventListener('click', () => {
       highlight(row.querySelector('.present-meaning'), present);
       row.querySelector('.past-meaning').classList.remove('highlight');
-      if (showParticiple) {
+      if (APP_STATE.showParticiple) {
         row.querySelector('.participle-meaning').classList.remove('highlight');
       }
     });
@@ -287,12 +314,12 @@ function renderTable() {
     row.querySelector('.past-cell').addEventListener('click', () => {
       highlight(row.querySelector('.past-meaning'), past);
       row.querySelector('.present-meaning').classList.remove('highlight');
-      if (showParticiple) {
+      if (APP_STATE.showParticiple) {
         row.querySelector('.participle-meaning').classList.remove('highlight');
       }
     });
 
-    if (showParticiple) {
+    if (APP_STATE.showParticiple) {
       row.querySelector('.participle-cell').addEventListener('click', () => {
         highlight(row.querySelector('.participle-meaning'), participle);
         row.querySelector('.present-meaning').classList.remove('highlight');
@@ -300,11 +327,11 @@ function renderTable() {
       });
     }
 
-    tableBody.appendChild(row);
+    DOM_ELEMENTS.tableBody.appendChild(row);
   });
 
   document.querySelectorAll('.participle-cell, th.participle-column').forEach(el => {
-    el.style.display = showParticiple ? '' : 'none';
+    el.style.display = APP_STATE.showParticiple ? '' : 'none';
   });
 
   updatePageInfo();
@@ -314,7 +341,7 @@ function renderTable() {
  * Actualiza la información de paginación
  */
 function updatePageInfo() {
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  const totalPages = Math.ceil(APP_STATE.filteredData.length / APP_STATE.rowsPerPage);
   const sortNames = {
     default: 'A-Z',
     identical: 'Formas Idénticas',
@@ -322,109 +349,196 @@ function updatePageInfo() {
     common: 'Más Comunes'
   };
   
-  pageInfo.textContent = `Página ${currentPage} de ${totalPages} | ${sortNames[currentSort]}`;
+  DOM_ELEMENTS.pageInfo.textContent = `Página ${APP_STATE.currentPage} de ${totalPages} | ${sortNames[APP_STATE.currentSort]}`;
   
-  prevBtn.disabled = currentPage === 1;
-  nextBtn.disabled = currentPage === totalPages;
+  DOM_ELEMENTS.prevBtn.disabled = APP_STATE.currentPage === 1;
+  DOM_ELEMENTS.nextBtn.disabled = APP_STATE.currentPage === totalPages;
 }
 
-// ============ EVENT LISTENERS ============
-sortOrder.addEventListener('change', function() {
-  currentSort = this.value;
-  searchInput.value = '';
-  filterData();
-});
+// ============ FUNCIONES DEL JUEGO ============
+/**
+ * Generar nueva pregunta aleatoria
+ */
+function generateNewQuestion() {
+  // Filtrar tipos de pregunta basado en si el participio está activo
+  const availableTypes = QUESTION_TYPES.filter(type => {
+    if (type.type.includes('participle')) return APP_STATE.showParticipleInQuiz;
+    return true;
+  });
+  
+  const randomType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+  APP_STATE.currentQuizVerb = data[Math.floor(Math.random() * data.length)];
+  
+  DOM_ELEMENTS.quizQuestion.textContent = randomType.text(APP_STATE.currentQuizVerb);
+  DOM_ELEMENTS.quizAnswer.value = '';
+  DOM_ELEMENTS.quizFeedback.textContent = '';
+  DOM_ELEMENTS.quizAnswer.focus();
+  
+  // Actualizar estadísticas
+  DOM_ELEMENTS.quizStats.textContent = `Aciertos: ${APP_STATE.quizScore} / Intentos: ${APP_STATE.quizAttempts}`;
+}
 
-// Botón de sonido mejorado
-soundBtn.addEventListener('click', () => {
-  soundEnabled = !soundEnabled;
-  soundBtn.classList.toggle('active');
-  localStorage.setItem('soundEnabled', soundEnabled);
+/**
+ * Verificar respuesta del juego
+ */
+function checkAnswer() {
+  const userAnswer = DOM_ELEMENTS.quizAnswer.value.trim().toLowerCase();
+  let correctAnswers = [];
+  let isCorrect = false;
   
-  // Actualizar icono según estado
-  const soundIcon = soundBtn.querySelector('.sound-icon');
-  const soundWaves = soundBtn.querySelectorAll('.sound-wave');
+  // Determinar respuestas correctas basado en el tipo de pregunta
+  if (DOM_ELEMENTS.quizQuestion.textContent.includes('presente')) {
+    correctAnswers = [APP_STATE.currentQuizVerb[0].toLowerCase()];
+  } else if (DOM_ELEMENTS.quizQuestion.textContent.includes('pasado')) {
+    correctAnswers = APP_STATE.currentQuizVerb[1].toLowerCase().split('/').map(s => s.trim());
+  } else if (DOM_ELEMENTS.quizQuestion.textContent.includes('participio')) {
+    correctAnswers = APP_STATE.currentQuizVerb[2].toLowerCase().split('/').map(s => s.trim().replace('*', ''));
+  }
   
-  if (soundEnabled) {
-    soundIcon.style.stroke = '#2ecc71'; // Verde
-    soundWaves.forEach(wave => wave.style.stroke = '#2ecc71');
+  // Verificar si la respuesta es correcta (incluyendo variantes)
+  isCorrect = correctAnswers.some(correct => 
+    userAnswer === correct || 
+    (correct.includes(' ') && userAnswer === correct.replace(' ', ''))
+  );
+  
+  // Mostrar feedback
+  if (isCorrect) {
+    APP_STATE.quizScore++;
+    DOM_ELEMENTS.quizFeedback.textContent = '¡Correcto!';
+    DOM_ELEMENTS.quizFeedback.className = 'quiz-feedback correct';
+    setTimeout(generateNewQuestion, 1500);
   } else {
-    soundIcon.style.stroke = '#f72585'; // Rojo
-    soundWaves.forEach(wave => wave.style.stroke = '#f72585');
+    DOM_ELEMENTS.quizFeedback.innerHTML = `Incorrecto. La respuesta correcta era: <strong>${correctAnswers.join(' o ')}</strong>`;
+    DOM_ELEMENTS.quizFeedback.className = 'quiz-feedback wrong';
   }
-});
-
-// Botón de participio
-toggleParticipleBtn.addEventListener('click', () => {
-  showParticiple = !showParticiple;
-  toggleParticipleBtn.querySelector('span').textContent = 
-    showParticiple ? 'Participio' : 'Mostrar Participio';
-  localStorage.setItem('showParticiple', showParticiple);
-  renderTable();
   
-  // Efecto visual
-  toggleParticipleBtn.classList.toggle('active');
-});
+  APP_STATE.quizAttempts++;
+  DOM_ELEMENTS.quizStats.textContent = `Aciertos: ${APP_STATE.quizScore} / Intentos: ${APP_STATE.quizAttempts}`;
+}
 
-// Botones de paginación
-prevBtn.addEventListener("click", () => {
-  if (currentPage > 1) {
-    currentPage--;
+// ============ MANEJADORES DE EVENTOS ============
+function setupEventListeners() {
+  // Eventos de la tabla principal
+  DOM_ELEMENTS.sortOrder.addEventListener('change', function() {
+    APP_STATE.currentSort = this.value;
+    DOM_ELEMENTS.searchInput.value = '';
+    filterData();
+  });
+
+  DOM_ELEMENTS.soundBtn.addEventListener('click', () => {
+    APP_STATE.soundEnabled = !APP_STATE.soundEnabled;
+    DOM_ELEMENTS.soundBtn.classList.toggle('active');
+    localStorage.setItem('soundEnabled', APP_STATE.soundEnabled);
+    
+    // Actualizar icono según estado
+    const soundIcon = DOM_ELEMENTS.soundBtn.querySelector('.sound-icon');
+    const soundWaves = DOM_ELEMENTS.soundBtn.querySelectorAll('.sound-wave');
+    
+    if (APP_STATE.soundEnabled) {
+      soundIcon.style.stroke = '#2ecc71';
+      soundWaves.forEach(wave => wave.style.stroke = '#2ecc71');
+    } else {
+      soundIcon.style.stroke = '#f72585';
+      soundWaves.forEach(wave => wave.style.stroke = '#f72585');
+    }
+  });
+
+  DOM_ELEMENTS.toggleParticipleBtn.addEventListener('click', () => {
+    APP_STATE.showParticiple = !APP_STATE.showParticiple;
+    DOM_ELEMENTS.toggleParticipleBtn.querySelector('span').textContent = 
+      APP_STATE.showParticiple ? 'Participio' : 'Mostrar Participio';
+    localStorage.setItem('showParticiple', APP_STATE.showParticiple);
     renderTable();
-  }
-});
+    
+    // Efecto visual
+    DOM_ELEMENTS.toggleParticipleBtn.classList.toggle('active');
+  });
 
-nextBtn.addEventListener("click", () => {
-  if (currentPage < Math.ceil(filteredData.length / rowsPerPage)) {
-    currentPage++;
+  DOM_ELEMENTS.prevBtn.addEventListener("click", () => {
+    if (APP_STATE.currentPage > 1) {
+      APP_STATE.currentPage--;
+      renderTable();
+    }
+  });
+
+  DOM_ELEMENTS.nextBtn.addEventListener("click", () => {
+    if (APP_STATE.currentPage < Math.ceil(APP_STATE.filteredData.length / APP_STATE.rowsPerPage)) {
+      APP_STATE.currentPage++;
+      renderTable();
+    }
+  });
+
+  DOM_ELEMENTS.rowsSelector.addEventListener("change", () => {
+    APP_STATE.rowsPerPage = parseInt(DOM_ELEMENTS.rowsSelector.value);
+    APP_STATE.currentPage = 1;
     renderTable();
-  }
-});
+  });
 
-rowsSelector.addEventListener("change", () => {
-  rowsPerPage = parseInt(rowsSelector.value);
-  currentPage = 1;
-  renderTable();
-});
+  DOM_ELEMENTS.searchInput.addEventListener("input", () => filterData());
 
-searchInput.addEventListener("input", () => filterData());
+  DOM_ELEMENTS.modeBtn.addEventListener('click', () => {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem('darkMode', document.body.classList.contains("dark-mode"));
+    DOM_ELEMENTS.modeBtn.classList.toggle('active');
+    
+    // Actualizar icono de luna/sol
+    const moonIcon = DOM_ELEMENTS.modeBtn.querySelector('.moon-icon');
+    if (document.body.classList.contains("dark-mode")) {
+      moonIcon.style.stroke = 'white';
+      moonIcon.style.fill = 'white';
+    } else {
+      moonIcon.style.stroke = '';
+      moonIcon.style.fill = 'none';
+    }
+  });
 
-// Botón de modo oscuro mejorado
-modeBtn.addEventListener('click', () => {
-  document.body.classList.toggle("dark-mode");
-  localStorage.setItem('darkMode', document.body.classList.contains("dark-mode"));
-  modeBtn.classList.toggle('active');
+  // Eventos del juego
+  DOM_ELEMENTS.quizButton.addEventListener('click', () => {
+    DOM_ELEMENTS.quizModal.style.display = 'flex';
+    generateNewQuestion();
+    DOM_ELEMENTS.quizAnswer.focus();
+  });
+
+  DOM_ELEMENTS.closeQuiz.addEventListener('click', () => {
+    DOM_ELEMENTS.quizModal.style.display = 'none';
+  });
+
+  DOM_ELEMENTS.quizSubmit.addEventListener('click', checkAnswer);
+  DOM_ELEMENTS.quizAnswer.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') checkAnswer();
+  });
   
-  // Actualizar icono de luna/sol
-  const moonIcon = modeBtn.querySelector('.moon-icon');
-  if (document.body.classList.contains("dark-mode")) {
-    moonIcon.style.stroke = 'white';
-    moonIcon.style.fill = 'white';
-  } else {
-    moonIcon.style.stroke = '';
-    moonIcon.style.fill = 'none';
+  // Sincronizar con el toggle de participio
+  if (DOM_ELEMENTS.toggleParticipleBtn) {
+    APP_STATE.showParticipleInQuiz = DOM_ELEMENTS.toggleParticipleBtn.classList.contains('active');
+    DOM_ELEMENTS.toggleParticipleBtn.addEventListener('click', () => {
+      APP_STATE.showParticipleInQuiz = !APP_STATE.showParticipleInQuiz;
+    });
   }
-});
+
+  // Manejar redimensionamiento de ventana
+  window.addEventListener('resize', updatePageInfo);
+}
 
 // ============ INICIALIZACIÓN ============
 function init() {
   // Cargar preferencias
-  soundEnabled = localStorage.getItem('soundEnabled') === 'true';
-  showParticiple = localStorage.getItem('showParticiple') !== 'false';
+  APP_STATE.soundEnabled = localStorage.getItem('soundEnabled') === 'true';
+  APP_STATE.showParticiple = localStorage.getItem('showParticiple') !== 'false';
   
   // Aplicar modo oscuro si está activado
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add("dark-mode");
-    modeBtn.classList.add('active');
-    modeBtn.querySelector('.moon-icon').style.fill = 'white';
+    DOM_ELEMENTS.modeBtn.classList.add('active');
+    DOM_ELEMENTS.modeBtn.querySelector('.moon-icon').style.fill = 'white';
   }
 
   // Configurar estado inicial de los controles
-  soundBtn.classList.toggle('active', soundEnabled);
-  const soundIcon = soundBtn.querySelector('.sound-icon');
-  const soundWaves = soundBtn.querySelectorAll('.sound-wave');
+  DOM_ELEMENTS.soundBtn.classList.toggle('active', APP_STATE.soundEnabled);
+  const soundIcon = DOM_ELEMENTS.soundBtn.querySelector('.sound-icon');
+  const soundWaves = DOM_ELEMENTS.soundBtn.querySelectorAll('.sound-wave');
   
-  if (soundEnabled) {
+  if (APP_STATE.soundEnabled) {
     soundIcon.style.stroke = '#2ecc71';
     soundWaves.forEach(wave => wave.style.stroke = '#2ecc71');
   } else {
@@ -432,18 +546,16 @@ function init() {
     soundWaves.forEach(wave => wave.style.stroke = '#f72585');
   }
   
-  toggleParticipleBtn.querySelector('span').textContent = 
-    showParticiple ? 'Participio' : 'Mostrar Participio';
-  toggleParticipleBtn.classList.toggle('active', showParticiple);
+  DOM_ELEMENTS.toggleParticipleBtn.querySelector('span').textContent = 
+    APP_STATE.showParticiple ? 'Participio' : 'Mostrar Participio';
+  DOM_ELEMENTS.toggleParticipleBtn.classList.toggle('active', APP_STATE.showParticiple);
+
+  // Configurar event listeners
+  setupEventListeners();
 
   // Renderizar tabla inicial
   renderTable();
 }
 
-// Iniciar la aplicación
-init();
-
-// Manejar redimensionamiento de ventana
-window.addEventListener('resize', () => {
-  updatePageInfo();
-});
+// Iniciar la aplicación cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', init);
